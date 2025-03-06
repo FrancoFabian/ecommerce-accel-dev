@@ -1,0 +1,12 @@
+.overflow-y-auto::-webkit-scrollbar {
+  width: 5px; /* Ajusta el ancho del scrollbar */
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #aab2c1; /* Color del thumb en modo claro */
+  border-radius: 4px; /* Redondea los bordes del thumb */
+}
+
+.dark .overflow-y-auto::-webkit-scrollbar-thumb {
+  background-color: #4b5563; /* Color del thumb en modo oscuro */
+}

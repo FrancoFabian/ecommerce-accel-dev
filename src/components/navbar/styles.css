@@ -1,0 +1,8 @@
+.gradiente-btn-light{
+    background: rgb(4,4,168);
+    background: linear-gradient(90deg, rgba(4,4,168,1) 2%, rgba(0,45,255,1) 100%);
+}
+.register-btn-light{
+    background: rgb(50,33,98);
+    background: linear-gradient(90deg, rgba(50,33,98,1) 8%, rgba(11,15,31,1) 100%);
+}

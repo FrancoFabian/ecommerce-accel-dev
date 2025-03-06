@@ -1,0 +1,17 @@
+/* .anime-transition{
+    opacity: 0;
+    transition: 1s;
+    &.loaded{
+        opacity: 1;
+    }
+} */
+.anime-transition {
+   
+    opacity: 0;
+    transition: 0.5s;
+  }
+  
+  .anime-transition.loaded {
+    opacity: 1;
+    background-color: rgb(0, 0, 0);
+  }

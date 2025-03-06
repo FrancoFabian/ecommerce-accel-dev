@@ -1,0 +1,7 @@
+// Tailwind Utility Classes
+.btn-filter {
+  @apply group relative inline-flex items-center justify-center appearance-none font-normal transition-transform bg-transparent border border-default-200 text-default-500 px-4 h-10 text-sm gap-2 rounded-md hover:opacity-80;
+}
+.sort-button {
+@apply relative px-3 gap-3 w-full flex items-center shadow-sm border border-default-200 h-10 rounded-md text-left text-sm font-normal transition-colors;
+}

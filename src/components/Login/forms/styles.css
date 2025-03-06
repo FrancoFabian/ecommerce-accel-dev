@@ -1,0 +1,14 @@
+
+.image {
+    width: 100%;
+    transition: transform 1.1s ease-in-out;
+    transition-delay: 0.3s;
+  }
+  
+  
+    .image {
+      width: 200px;
+      transition: transform 0.9s ease-in-out;
+      transition-delay: 0.5s;
+    } 
+  
