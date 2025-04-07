@@ -6,8 +6,10 @@ import { BtnSubmit } from "../submit/BtnSubmit"
 import { SvgIconBtnGoogle } from "../submit/SvgIconBtnGoogle"
 import { ForgotPassword } from "../check/ForgotPassword"
 import { LeftArrowIcon } from "@/icons/LeftArrowIcon"
-import { useState } from "react";
-
+import { useActionState, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { clientAuth} from "@/lib/clientAuth";
+import {useRouter} from "next/navigation";
 
 interface LoginProps {
     isLogin: boolean;
@@ -16,9 +18,18 @@ interface LoginProps {
     setForgotForm: (newSatet: boolean) => void;
 }
 
+interface FormState {
+    success: boolean | null;
+    message: string;
+  }
+
 export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginProps) => {
-    const loginRef = useFormTransition<HTMLFormElement>(isLogin, { fromDirection: "left" });
-    const [formValues, setFormValues] = useState<Record<string, string>>({});
+    const router = useRouter();
+   const loginRef = useFormTransition<HTMLFormElement>(isLogin, { fromDirection: "left" });
+   const [formValues, setFormValues] = useState<{ email: string; password: string }>({
+        email: '',
+        password: '',
+      });
 
     const handleInputChange = (name: string, value: string) => {
         setFormValues((prevValues) => ({
@@ -27,9 +38,41 @@ export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginP
         }));
         
     };
-
+    const loginAction = async (state: FormState, formData: FormData): Promise<FormState> => {
+        try {
+          const response = await fetch('http://localhost:8080/api/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              email: formData.get('email'),
+              password: formData.get('password'),
+            }),
+          });
+    
+          if (!response.ok) {
+            throw new Error('Credenciales incorrectas');
+          }
+    
+          const data = await response.json();
+          clientAuth.setToken(data.accessToken);
+            router.push('/micuenta');  // Redirección mediante Next.js
+            // Manejar el token, por ejemplo, almacenándolo en una cookie o en el estado global
+          console.log(JSON.stringify(data))
+          return { success: true, message: 'Inicio de sesión exitoso' };
+        } catch (error) {
+          return { success: false, message: (error as Error).message };
+        }
+      };
+    
+    
+      const [state, formAction] = useActionState(loginAction, { success: null, message: '' });
+      const { pending } = useFormStatus();
+    
     return (
         <form
+            action={formAction}
             ref={loginRef}
             className="flex w-full lg:w-[50%] lg:h-[100%] sm:w-full sm:h-screen h-[85vh]
         flex-col 
@@ -51,19 +94,21 @@ export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginP
  
             <InputNormal
                 nameInput="Nombre de usuario"
+                name="email"
                 type="text"
                 placeholder="Nombre de usuario"
                 isPassword={false}
-                value={formValues["Nombre de usuario"] || ""}
-                onChange={(value) => handleInputChange("Nombre de usuario", value)}
+                value={formValues.email}
+                onChange={(value) => handleInputChange("email", value)}
             />
             <InputNormal
                 nameInput="Contraseña"
+                name="password"
                 type="password"
                 placeholder="Contraseña"
                 isPassword={true}
-                value={formValues["Contraseña"] || ""}
-                onChange={(value) => handleInputChange("Contraseña", value)}
+                value={formValues.password}
+                onChange={(value) => handleInputChange("password", value)}
             />
             <ForgotPassword forgotForm={forgotForm} setForgotForm={setForgotForm} />
             <BtnSubmit
@@ -80,8 +125,9 @@ export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginP
                 <p className="shrink-0 text-xs text-gray-500">O</p>
                 <hr className="bg-gray-300 border-none w-full h-px flex-1" role="separator" />
             </div>
+            {state.message && <p>{state.message}</p>}
             <BtnSubmit
-                name="Iniciar con Google"
+                name={pending ? 'Iniciando sesión...' : 'Iniciar con Google'}
                 type="submit"
                 onClicked={undefined}
                 className="elative z-0 inline-flex items-center justify-center box-border appearance-none select-none 
@@ -92,8 +138,10 @@ export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginP
                text-sm gap-2 rounded-md transition-all transform bg-white text-black
                hover:opacity-90 active:scale-95"
                 icon={<SvgIconBtnGoogle
-                    className="text-2xl" />} />
-
+                    className="text-2xl" />}
+                    disabled={pending}
+                    />
+            
             <button
                 className="flex w-[200px] justify-center lg:hidden sm:hidden text-md
                  bg-slate-200 text-primary py-2 rounded-lg mt-2 items-center"
@@ -104,9 +152,8 @@ export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginP
                 Crear una cuenta
                 <LeftArrowIcon className="w-8 h-8 mr-2 text-gray-400 rotate-180" />
             </button>
-
+             
 
         </form>
     )
 }
-

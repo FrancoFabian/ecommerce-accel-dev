@@ -4,6 +4,7 @@ import { PasswordSvg } from "./PasswordSvg";
 import { NoVisiblePass } from "./NoVisblePass";
 interface InputProps {
     nameInput: string;
+    name: string;
     type: string;
     placeholder: string;
     isPassword?: boolean;
@@ -13,7 +14,7 @@ interface InputProps {
     Icon?:React.FC<React.SVGProps<SVGSVGElement>>
 }
 
-export const InputNormal = ({ nameInput, type, placeholder, isPassword = false ,onChange,value,label = true, Icon = undefined}:InputProps) => {
+export const InputNormal = ({ nameInput, name, type, placeholder, isPassword = false ,onChange,value,label = true, Icon = undefined}:InputProps) => {
  
     const [showPassword, setShowPassword] = useState(false);
 
@@ -29,7 +30,7 @@ export const InputNormal = ({ nameInput, type, placeholder, isPassword = false ,
         <div className="relative w-full h-20 md:h-12 sm:h-12 lg:h-12 2xl:h-20
          inline-flex flex-col tap-highlight-transparent justify-center gap-0 py-2 sm:py-0 md:py-0 lg:py-0 2xl:py-2">
             {label && <label
-                htmlFor={nameInput}
+                htmlFor={name}
                 className="w-[300px] absolute text-lg z-10 text-gray-700 -left-4 -translate-y-3
                  scale-75 pointer-events-none flex items-center"
             >
@@ -39,9 +40,9 @@ export const InputNormal = ({ nameInput, type, placeholder, isPassword = false ,
 
             {!isPassword ? (
                 <input
-                    id={nameInput}
+                    id={name}
                     type={type}
-                    name={nameInput}
+                    name={name}
                     value={value}
                     onChange={handleChange}
                     placeholder={placeholder}
@@ -53,9 +54,9 @@ export const InputNormal = ({ nameInput, type, placeholder, isPassword = false ,
               
             ) : (
                 <input
-                    id={nameInput}
+                    id={name}
                     type={showPassword ? 'text' : 'password'}
-                    name={nameInput}
+                    name={name}
                     value={value}
                     onChange={handleChange}
                     placeholder={placeholder}
