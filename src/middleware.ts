@@ -1,80 +1,83 @@
 // src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { jwtDecode } from "jwt-decode";
+import { jwtDecode } from 'jwt-decode';
 
 interface DecodedToken {
-    exp: number;
-    sub: string;
-    role: string[];
+  exp: number;
+  sub: string;
+  role: string[];
 }
 
 export async function middleware(request: NextRequest) {
-    // Public paths that don't require authentication
-    const publicPaths = ['/login', '/register', '/forgot-password'];
-    const isPublicPath = publicPaths.includes(request.nextUrl.pathname);
+  // Rutas que se pueden visitar sin estar autenticado
+  const publicPaths = ['/', '/login', '/register', '/forgot-password'];
 
-    // Get the token from the cookies
-    const token = request.cookies.get('token')?.value;
-    const refreshToken = request.cookies.get('refresh_token')?.value;
+  // Extraemos el token y, si existe, lo validamos
+  const token = request.cookies.get('token')?.value;
+  const refreshToken = request.cookies.get('refresh_token')?.value;
+  const isAuth = token ? validateToken(token) : false;
 
-    // Check if the token is valid
-    const isAuth = token ? validateToken(token) : false;
-
-    // Handle public paths
-    if (isPublicPath) {
-        if (isAuth) {
-            // Redirect authenticated users away from public paths
-            return NextResponse.redirect(new URL('/micuenta', request.url));
-        }
-        return NextResponse.next();
+  // 1) Si la ruta es "/login" y el usuario YA está logueado, redirige a "/micuenta"
+  if (request.nextUrl.pathname === '/login') {
+    if (isAuth) {
+      return NextResponse.redirect(new URL('/micuenta', request.url));
     }
-
-    // Handle protected paths
-    if (!isAuth) {
-        // If we have a refresh token, try to refresh the session
-        if (refreshToken) {
-            try {
-                const response = await fetch(`${request.nextUrl.origin}/api/auth/refresh`, {
-                    method: 'POST',
-                    headers: {
-                        'Cookie': `refresh_token=${refreshToken}`
-                    }
-                });
-
-                if (response.ok) {
-                    // Successfully refreshed, allow the request
-                    return NextResponse.next();
-                }
-            } catch (error) {
-                // Refresh failed, redirect to login
-                const response = NextResponse.redirect(new URL('/login', request.url));
-                response.cookies.delete('token');
-                response.cookies.delete('refresh_token');
-                return response;
-            }
-        }
-
-        // No refresh token or refresh failed, redirect to login
-        return NextResponse.redirect(new URL('/login', request.url));
-    }
-
+    // Si no está logueado, puede ver la página /login
     return NextResponse.next();
+  }
+
+  // 2) Verificar si es una ruta pública distinta de "/login"
+  //    (p.ej. "/", "/register", "/forgot-password")
+  if (publicPaths.includes(request.nextUrl.pathname)) {
+    return NextResponse.next();
+  }
+
+  // 3) Para rutas protegidas, si no hay sesión válida:
+  if (!isAuth) {
+    // Intentar refrescar la sesión si tenemos un refresh token
+    if (refreshToken) {
+      try {
+        const response = await fetch(`${request.nextUrl.origin}/api/auth/refresh`, {
+          method: 'POST',
+          headers: {
+            Cookie: `refresh_token=${refreshToken}`,
+          },
+        });
+        if (response.ok) {
+          // Sesión refrescada con éxito, deja pasar
+          return NextResponse.next();
+        }
+      } catch (error) {
+        // Ignoramos el error y redirigimos abajo
+      }
+    }
+    // No se pudo refrescar (o no había refreshToken), redirigir a /login
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('token');
+    response.cookies.delete('refresh_token');
+    return response;
+  }
+
+  // 4) Está logueado y la ruta no es pública => acceso permitido
+  return NextResponse.next();
 }
 
 function validateToken(token: string): boolean {
-    try {
-        const decoded = jwtDecode<DecodedToken>(token);
-        // Add some buffer time (30 seconds) to prevent edge cases
-        return (decoded.exp * 1000) > (Date.now() + 30000);
-    } catch {
-        return false;
-    }
+  try {
+    const decoded = jwtDecode<DecodedToken>(token);
+    // Se suma un buffer de 30s para prevenir casos límite
+    return decoded.exp * 1000 > Date.now() + 30000;
+  } catch {
+    return false;
+  }
 }
 
 export const config = {
-    matcher: [
-        '/((?!_next/static|_next/image|favicon.ico|public|api/auth/login).*)',
-    ],
+  matcher: [
+    // Aplica este middleware a todas las rutas excepto:
+    // - _next/static, _next/image, favicon.ico, public/ 
+    // - y la ruta /api/auth/login (ya gestionada aparte)
+    '/((?!_next/static|_next/image|favicon.ico|public|api/auth/login).*)',
+  ],
 };
-

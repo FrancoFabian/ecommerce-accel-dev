@@ -60,11 +60,33 @@ export async function POST(
   }
   
   if (authType === 'logout') {
-    // Create response that clears cookies
-    const res = NextResponse.json({ success: true });
-    res.cookies.delete('auth_token');
-    res.cookies.delete('refresh_token');
-    return res;
+    try {
+      // Get the token from cookies
+      const token = request.cookies.get('token')?.value;
+
+      // Call backend logout endpoint
+      const response = await fetch(`${BACKEND_URL}/api/auth/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Logout failed');
+      }
+
+      // Create response that clears cookies
+      const res = NextResponse.json({ success: true });
+      res.cookies.delete('token');
+      res.cookies.delete('refresh_token');
+      return res;
+    } catch (error) {
+      return NextResponse.json(
+        { error: 'Logout failed' },
+        { status: 500 }
+      );
+    }
   }
 
   return NextResponse.json(
@@ -72,3 +94,23 @@ export async function POST(
     { status: 400 }
   );
 }
+
+/**
+ * Uso del endpoint de autenticación desde el frontend:
+ * 
+ * Para cerrar sesión:
+ * ```typescript
+ * import { useRouter } from 'next/navigation';
+ * 
+ * const handleLogout = async () => {
+ *   const response = await fetch("/api/auth/logout", { 
+ *     method: "POST",
+ *   });
+ *   
+ *   if (response.ok) {
+ *     // Redirigir al usuario a la página principal
+ *     router.push("/");
+ *   }
+ * };
+ * ```
+ */
