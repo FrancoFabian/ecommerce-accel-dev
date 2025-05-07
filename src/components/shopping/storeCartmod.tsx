@@ -52,11 +52,11 @@ export const Cart = () => {
 
     return (
         <div className={`w-full h-auto rounded-md bg-white py-6 px-3
-        shadow-lg dark:bg-gray-800 
+        shadow-lg 
         lg:flex-none ${quickSans.className}`}
         >
-            <h2 className="font-medium  text-gray-600 dark:text-gray-200 text-md pb-3">Su pedido</h2>
-            <hr className=" border-gray-300 dark:border-gray-700 top-4" />
+            <h2 className="font-semibold  text-gray-600 text-md pb-3">Su pedido</h2>
+            <hr className=" border-gray-200 top-4" />
             <div
                 className="w-[92.8%] h-[40px]"
                 style={{ 
@@ -71,7 +71,7 @@ export const Cart = () => {
                     <CartItemMod key={item.imageSrc} {...item} />
                 ))}
             </ul>
-            <hr className="my-2 border-gray-300 dark:border-gray-700" />
+            <hr className="my-2 border-gray-200" />
             <div className="flex justify-between">
                 <dt className="text-md font-semibold text-gray-700">Total</dt>
                 <dd className="text-xl font-semibold text-gray-700">$172.96</dd>

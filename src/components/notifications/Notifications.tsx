@@ -152,7 +152,7 @@ export const Notifications = () => {
       <div className="p-3 z-10 w-full justify-start items-center shrink-0 overflow-inherit color-inherit subpixel-antialiased rounded-t-large flex flex-col px-0 pb-0">
         <div className="flex w-full items-center justify-between px-5 py-2">
           <div className="inline-flex items-center gap-1">
-            <h4 className="inline-block align-middle text-large font-medium">Notificaciones</h4>
+            <h4 className="inline-block align-middle text-large font-semibold">Notificaciones</h4>
             <div className="relative max-w-fit min-w-min inline-flex items-center justify-between box-border whitespace-nowrap 
             px-1 h-6 text-tiny rounded-full bg-gray-100 text-gray-600">
               <span className="flex-1 text-inherit font-normal px-1">{notifications.length}</span>

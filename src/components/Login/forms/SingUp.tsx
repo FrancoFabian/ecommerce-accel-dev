@@ -1,13 +1,15 @@
 'use client';
 import { TermsCheckbox } from "../check/TermsCheckbox"
-import { useFormTransition } from "../../../hooks/login/useFormTransition";
+import { useFormTransition } from "../../../lib/hooks/login/useFormTransition";
 import { BtnSubmit } from "../submit/BtnSubmit"
 import { SvgIconBtnGoogle } from "../submit/SvgIconBtnGoogle"
 import { LeftArrowIcon } from "@/icons/LeftArrowIcon"
 import { useState } from "react";
 import { InputForPassword } from "../inputs/InputForPassword";
+import { useRouter } from "next/navigation";
 
 interface InputConfig {
+    id: string;
     nameInput: string;
     type: string;
     placeholder: string;
@@ -19,16 +21,21 @@ interface SingUpProps {
     setIsLogin: (newSatet: boolean) => void;
 }
 const inputs: InputConfig[] = [
-    { nameInput: "Nombre de usuario", type: "text", placeholder: "Nombre de usuario" },
-    { nameInput: "Correo electronico", type: "email", placeholder: "Email" },
-    { nameInput: "Contraseña", type: "password", placeholder: "Contraseña", isPassword: true },
-    { nameInput: "Confirmar contraseña", type: "password", placeholder: "Confirmar contraseña", isPassword: true },
+    { id: "firstName", nameInput: "Nombre de usuario", type: "text", placeholder: "Nombre de usuario" },
+    { id: "numberoremail", nameInput: "E-mail o celular", type: "email", placeholder: "ejmpl@gmail.com or 1234567890" },
+    { id: "password", nameInput: "Contraseña", type: "password", placeholder: "Contraseña", isPassword: true },
+    { id: "confirmPassword", nameInput: "Confirmar contraseña", type: "password", placeholder: "Confirmar contraseña", isPassword: true },
 ];
 
 export const SingUp = ({ isLogin, setIsLogin }: SingUpProps) => {
     const singUpRef = useFormTransition<HTMLFormElement>(!isLogin, { fromDirection: "right" });
     const [formValues, setFormValues] = useState<Record<string, string>>({});
-
+    const router = useRouter();
+    const goToSignup = () => {
+        // Cambia el estado para mostrar el formulario de registro
+        setIsLogin(true);
+        router.push('/login');
+    };
     const handleInputChange = (name: string, value: string) => {
         setFormValues((prevValues) => ({
             ...prevValues,
@@ -51,9 +58,10 @@ export const SingUp = ({ isLogin, setIsLogin }: SingUpProps) => {
 
             </div>
 
-            {inputs.map(({ nameInput, type, placeholder, isPassword }) => (
+            {inputs.map(({ id, nameInput, type, placeholder, isPassword }) => (
                 <InputForPassword
-                    key={nameInput}
+                    key={id}
+                    id={id}
                     nameInput={nameInput}
                     type={type}
                     placeholder={placeholder}
@@ -98,8 +106,7 @@ export const SingUp = ({ isLogin, setIsLogin }: SingUpProps) => {
             <button
                 className="flex w-[200px] justify-center lg:hidden sm:hidden text-md
                  bg-slate-200 text-primary py-2 rounded-lg mt-2 items-center"
-                onClick={() => { setIsLogin(true) }}
-
+                onClick={goToSignup}
             >
                 <LeftArrowIcon className="w-8 h-8 mr-2 text-gray-400" />
                 Iniciar sesión
@@ -107,4 +114,3 @@ export const SingUp = ({ isLogin, setIsLogin }: SingUpProps) => {
         </form>
     )
 }
-

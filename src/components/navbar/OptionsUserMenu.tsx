@@ -1,6 +1,6 @@
 "use client";
 import { forwardRef, memo, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useLogout } from "@/lib/hooks/session/useLogout";
 
 const menuItems = [
   { id: "profile", text: "johndoe@example.com" },
@@ -20,23 +20,7 @@ type OptionsUserMenuProps = {
 
 export const OptionsUserMenu = memo(
   forwardRef<HTMLDivElement, OptionsUserMenuProps>(({ isOpen }, ref) => {
-    // Para redirigir a otra ruta
-    const router = useRouter();
-
-    // Función para manejar el click en "Cerrar sesión"
-    const handleLogout = useCallback(async () => {
-      try {
-        const response = await fetch("/api/auth/logout", { method: "POST" });
-        if (response.ok) {
-          // Redirige a la página principal
-          router.push("/");
-        } else {
-          console.error("Error al cerrar sesión");
-        }
-      } catch (err) {
-        console.error("Error en el logout:", err);
-      }
-    }, [router]);
+    const handleLogout = useLogout();
 
     return (
       <div

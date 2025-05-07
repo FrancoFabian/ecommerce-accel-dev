@@ -3,6 +3,7 @@
 import { DarkIcon } from "@/icons/DarkIcon"
 import { LightIcon } from "@/icons/LightIcon"
 import { useState } from "react"
+import { useLogout } from "@/lib/hooks/session/useLogout";
 import {
   HiCube,
   HiHeart,
@@ -20,6 +21,7 @@ import {
 export const MobileProfile = () => {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode)
+  const handleLogout = useLogout();
 
   return (
     <div
@@ -73,16 +75,16 @@ export const MobileProfile = () => {
             {/* Grid Menu */}
                 <div className="grid grid-cols-2 gap-3 translate-y-[-3rem]">
                     {[
-                    { icon: <HiCube className="w-6 h-6" />, label: "Mis pedidos" },
-                    { icon: <HiWallet className="w-6 h-6" />, label: "Metodo de pago y facturación" },
-                    { icon: <HiHeart className="w-6 h-6" />, label: "Mis favoritos" },
-                    { icon: <HiStar className="w-6 h-6" />, label: "Mis reseñas" },
-                    { icon: <HiQuestionMarkCircle className="w-6 h-6" />, label: "Mis preguntas" },
-                    { icon: <HiInformationCircle className="w-6 h-6" />, label: "Ayuda" },
-                    { icon: <HiMapPin className="w-6 h-6" />, label: "Mis Direcciones" },
-                    { icon: <HiTag className="w-6 h-6" />, label: "Cupones y promociones" },
-                    { icon: <HiShieldCheck className="w-6 h-6" />, label: "Seguridad y doble factor" },
-                    { icon: <HiArrowLeftOnRectangle className="w-6 h-6" />, label: "Cerrar sesión" },
+                    { id: "my_orders", icon: <HiCube className="w-6 h-6" />, label: "Mis pedidos" },
+                    { id: "mi_paymetodes", icon: <HiWallet className="w-6 h-6" />, label: "Metodo de pago y facturación" },
+                    { id: "mis_pedidos", icon: <HiHeart className="w-6 h-6" />, label: "Mis favoritos" },
+                    { id: "analytics", icon: <HiStar className="w-6 h-6" />, label: "Mis reseñas" },
+                    { id: "my_questions", icon: <HiQuestionMarkCircle className="w-6 h-6" />, label: "Mis preguntas" },
+                    { id: "help_and_feedback", icon: <HiInformationCircle className="w-6 h-6" />, label: "Ayuda" },
+                    { id: "my_addresses", icon: <HiMapPin className="w-6 h-6" />, label: "Mis Direcciones" },
+                    { id: "my_coupons", icon: <HiTag className="w-6 h-6" />, label: "Cupones y promociones" },
+                    { id: "my_security", icon: <HiShieldCheck className="w-6 h-6" />, label: "Seguridad y doble factor" },
+                    { id: "logout", icon: <HiArrowLeftOnRectangle className="w-6 h-6" />, label: "Cerrar sesión" },
                     
                     
                     ].map((item, index) => (
@@ -92,6 +94,7 @@ export const MobileProfile = () => {
                         dark:bg-gray-800 rounded-2xl space-y-2 dark:hover:text-emerald-500 
                         text-gray-500 dark:text-gray-200 dark:font-medium
                         transition-colors hover:text-emerald-500 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        onClick={item.id === "logout" ? handleLogout : undefined}
                     >
                         <div>
                         {item.icon}

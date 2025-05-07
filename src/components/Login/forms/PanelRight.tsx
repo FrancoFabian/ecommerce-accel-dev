@@ -1,7 +1,7 @@
 'use client';
 import { Astronauta } from "../imageLogin/Astronauta"
 import { BtnSubmit } from "../submit/BtnSubmit"
-import { useFormTransition } from "@/hooks/login/useFormTransition";
+import { useFormTransition } from "@/lib/hooks/login/useFormTransition";
 interface PanelRightProps {
   isLogin: boolean;
   setIsLogin: (newSatet: boolean) => void;

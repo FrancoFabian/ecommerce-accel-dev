@@ -26,7 +26,7 @@ export const TabList = ({ tabs, onTabChange }: TabListProps) => {
     return (
       <div
         className="flex p-1 h-fit items-center flex-nowrap scrollbar-hide
-         bg-transparent gap-6 px-6 py-0 w-full relative rounded-none border-b border-divider"
+         bg-transparent gap-6 px-6 py-0 w-full relative rounded-none border-b border-gray-200"
         role="tablist"
         aria-label="Notifications"
       >

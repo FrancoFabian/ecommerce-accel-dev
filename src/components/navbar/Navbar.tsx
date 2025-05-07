@@ -75,7 +75,7 @@ export const Navbar = () => {
       }, []);
 
     return (
-        <nav className="flex z-40 w-full h-auto items-center justify-center sticky top-0 inset-x-0 backdrop-blur-lg bg-white/70 lg:bg-transparent">
+        <nav className="flex z-40 w-full h-auto items-center justify-center sticky top-0 inset-x-0 backdrop-blur-lg bg-white/70 lg:bg-transparent position-fixed">
             <header className="z-40 flex gap-4 w-full flex-row relative items-center justify-between h-[60px] max-w-[1024px] px-4 sm:px-6">
                 {/* Logo */}
                 <div className="flex items-center">

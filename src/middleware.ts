@@ -11,7 +11,7 @@ interface DecodedToken {
 
 export async function middleware(request: NextRequest) {
   // Rutas que se pueden visitar sin estar autenticado
-  const publicPaths = ['/', '/login', '/register', '/forgot-password'];
+  const publicPaths = ['/', '/login', '/signup', '/forgot-password',  '/categorias', '/doblefactorauth'];
 
   // Extraemos el token y, si existe, lo validamos
   const token = request.cookies.get('token')?.value;
@@ -78,6 +78,6 @@ export const config = {
     // Aplica este middleware a todas las rutas excepto:
     // - _next/static, _next/image, favicon.ico, public/ 
     // - y la ruta /api/auth/login (ya gestionada aparte)
-    '/((?!_next/static|_next/image|favicon.ico|public|api/auth/login).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public|api/auth/login|api/(?:subcategories|productscategory)).*)',
   ],
 };

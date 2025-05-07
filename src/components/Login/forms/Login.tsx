@@ -1,6 +1,6 @@
 'use client';
 
-import { useFormTransition } from "../../../hooks/login/useFormTransition";
+import { useFormTransition } from "../../../lib/hooks/login/useFormTransition";
 import { InputNormal } from "../inputs/InputNormal"
 import { BtnSubmit } from "../submit/BtnSubmit"
 import { SvgIconBtnGoogle } from "../submit/SvgIconBtnGoogle"
@@ -29,6 +29,13 @@ export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginP
         email: '',
         password: '',
     });
+    const goToSignup = () => {
+        // Cambia el estado para mostrar el formulario de registro
+        setIsLogin(false);
+        //router.push('/signup');
+        //window.history.pushState({}, '', '/signup');
+
+    };
 
     const handleInputChange = (name: string, value: string) => {
         setFormValues((prevValues) => ({
@@ -151,7 +158,7 @@ export const Login = ({ isLogin, setIsLogin, forgotForm, setForgotForm }: LoginP
                 type="button"
                 className="flex w-[200px] justify-center lg:hidden sm:hidden text-md
                 bg-slate-200 text-primary py-2 rounded-lg mt-2 items-center"
-                onClick={() => { setIsLogin(false) }}
+                onClick={goToSignup}
             >
                 Crear una cuenta
                 <LeftArrowIcon className="w-8 h-8 mr-2 text-gray-400 rotate-180" />

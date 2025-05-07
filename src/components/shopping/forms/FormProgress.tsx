@@ -1,6 +1,6 @@
 'use client';
-import React, { useState, useRef } from 'react';
-import { useRippleEffect } from '@/hooks/useRippleEfecct';
+import React,{ useState, useRef } from 'react';
+import { useRippleEffect } from '@/lib/hooks/useRippleEfecct';
 import { InputDelivery } from '../inputs/InputDelivery';
 import { PaymentMethods } from '../paymentCards/PaymentMethods';
 import { AgreeCard } from '../paymentCards/AgreeCard';
@@ -133,7 +133,7 @@ export const FormProgress = () => {
           className="ripple-button z-0 group relative inline-flex items-center justify-center box-border appearance-none select-none whitespace-nowrap 
           font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent 
            outline-none px-6 min-w-24 h-12 text-medium gap-3 rounded-lg w-full transition-transform-colors-opacity 
-           motion-reduce:transition-none mt-1 bg-foreground text-white"
+           motion-reduce:transition-none mt-1 bg-context text-white cursor-pointer"
           type="button"
           onClick={handleNextStep}
         >
