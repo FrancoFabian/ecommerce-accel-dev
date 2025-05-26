@@ -1,72 +1,80 @@
 "use client";
-
-// import { useState } from "react";
-// import { useFormik } from "formik";
-// import * as z from "zod";
-// import { toFormikValidationSchema } from "zod-formik-adapter";
-// import { format } from "date-fns";
-// import { CalendarIcon } from "lucide-react";
-
-// // Componentes UI (ajusta según tu estructura de proyecto)
-// import { Input } from "@/components/ui/input";
-// import { Button } from "@/components/ui/button";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Label } from "@/components/ui/label";
-// import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-// import { Checkbox } from "@/components/ui/checkbox";
-// import { Calendar } from "@/components/ui/calendar";
-// import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {cn} from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import CheckmarkIcon from "../../check/CheckmarkIcon";
 
 interface StepIndicatorProps {
-    currentStep: number;
-    steps: { number: number; title: string }[];
-  }
-  
-  export const StepIndicator = ({ currentStep, steps }: StepIndicatorProps) => {
-    return (
-      <div className="w-full mb-8">
-        <div className="relative flex justify-between">
-          {steps.map((step, index) => {
-            const isActive = currentStep === step.number;
-            const isCompleted = currentStep > step.number;
-  
-            return (
-              <div key={step.number} className="flex flex-col items-center">
+  currentStep: number;
+  steps: { number: number; title: string; subtitle?: string }[];
+}
+
+export const StepIndicator = ({ currentStep, steps }: StepIndicatorProps) => {
+  const Circle = (active: boolean, done: boolean, n: number) => (
+    <div
+      className={cn(
+        "flex h-10 w-10 items-center justify-center rounded-full border-2 text-base font-semibold transition-colors",
+        done
+          ? "bg-gray-500/30 border-gray-400/20 text-gray-400/30"
+          : active
+          ? "border-gray-400 text-gray-400"
+          : "border-gray-400/30 text-gray-400/30"
+      )}
+    >
+      {done ? <CheckmarkIcon isChecked /> : n}
+    </div>
+  );
+
+  return (
+    <aside className="hidden lg:flex flex-col w-1/3 shrink-0 px-8 pt-10 rounded-xl bg-gradient-to-b from-stone-900 via-blue-950 to-sky-800">
+      {steps.map((step, idx) => {
+        const active = currentStep === step.number;
+        const done = currentStep > step.number;
+        const isLast = idx === steps.length - 1;
+
+        return (
+          <div key={step.number} className="flex">
+            {/* ---- Columna con círculo + línea ---- */}
+            <div className="flex flex-col items-center">
+              {Circle(active, done, step.number)}
+
+              {!isLast && (
                 <div
                   className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
-                    isActive
-                      ? "bg-gray-600 text-white"
-                      : isCompleted
-                      ? "bg-gray-400 text-white"
-                      : "bg-gray-200 text-black"
+                    "w-0.5 flex-1 my-2",
+                    step.number < currentStep ? "bg-gray-400" : "bg-gray-400/30"
+                  )}
+                />
+              )}
+            </div>
+
+            {/* ---- Texto ---- */}
+            <div className="ml-4 mb-16">
+              <p
+                className={cn(
+                  "font-semibold transition-colors",
+                  active
+                    ? "text-white"
+                    : done
+                    ? "text-gray-200"
+                    : "text-gray-400"
+                )}
+              >
+                {step.title}
+              </p>
+
+              {step.subtitle && (
+                <p
+                  className={cn(
+                    "text-sm transition-colors",
+                    active ? "text-gray-400" : "text-gray-500"
                   )}
                 >
-                  {step.number}
-                </div>
-                <span
-                  className="absolute top-10 text-xs font-medium text-gray-500 whitespace-nowrap"
-                  style={{
-                    transform: `translateX(-50%)`,
-                    left: `${(index * 100) / (steps.length - 1)}%`,
-                  }}
-                >
-                  {step.title}
-                </span>
-              </div>
-            );
-          })}
-          <div className="absolute top-4 left-0 right-0 h-[2px] -translate-y-1/2 bg-gray-200">
-            <div
-              className="absolute h-full bg-gray-500 transition-all duration-300"
-              style={{
-                width: `${((currentStep - 1) * 100) / (steps.length - 1)}%`,
-              }}
-            />
+                  {step.subtitle}
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
-    );
-  }
-  
+        );
+      })}
+    </aside>
+  );
+};

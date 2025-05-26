@@ -10,13 +10,26 @@ interface DecodedToken {
 }
 
 export async function middleware(request: NextRequest) {
+  // Permitir siempre las rutas de la API de autenticación
+  if (request.nextUrl.pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+
   // Rutas que se pueden visitar sin estar autenticado
   const publicPaths = ['/', '/login', '/signup', '/forgot-password',  '/categorias', '/doblefactorauth'];
 
-  // Extraemos el token y, si existe, lo validamos
-  const token = request.cookies.get('token')?.value;
-  const refreshToken = request.cookies.get('refresh_token')?.value;
-  const isAuth = token ? validateToken(token) : false;
+  // Extraemos los tokens y, si existen, los validamos
+  const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
+  
+  // Mantener compatibilidad con cookies legacy
+  const legacyToken = request.cookies.get('token')?.value;
+  const legacyRefreshToken = request.cookies.get('refresh_token')?.value;
+  
+  const tokenToValidate = accessToken || legacyToken;
+  const refreshTokenToUse = refreshToken || legacyRefreshToken;
+  
+  const isAuth = tokenToValidate ? validateToken(tokenToValidate) : false;
 
   // 1) Si la ruta es "/login" y el usuario YA está logueado, redirige a "/micuenta"
   if (request.nextUrl.pathname === '/login') {
@@ -36,12 +49,12 @@ export async function middleware(request: NextRequest) {
   // 3) Para rutas protegidas, si no hay sesión válida:
   if (!isAuth) {
     // Intentar refrescar la sesión si tenemos un refresh token
-    if (refreshToken) {
+    if (refreshTokenToUse) {
       try {
         const response = await fetch(`${request.nextUrl.origin}/api/auth/refresh`, {
           method: 'POST',
           headers: {
-            Cookie: `refresh_token=${refreshToken}`,
+            Cookie: `refreshToken=${refreshTokenToUse}`,
           },
         });
         if (response.ok) {
@@ -50,16 +63,24 @@ export async function middleware(request: NextRequest) {
         }
       } catch (error) {
         // Ignoramos el error y redirigimos abajo
+        console.warn('Error al intentar refrescar token:', error);
       }
     }
     // No se pudo refrescar (o no había refreshToken), redirigir a /login
     const response = NextResponse.redirect(new URL('/login', request.url));
+    
+    // Limpiar todas las cookies de autenticación
+    response.cookies.delete('accessToken');
+    response.cookies.delete('refreshToken');
+    response.cookies.delete('verificationToken');
+    // Limpiar cookies legacy
     response.cookies.delete('token');
     response.cookies.delete('refresh_token');
+    
     return response;
   }
 
-  // 4) Está logueado y la ruta no es pública => acceso permitido
+  // 4) Si llegamos hasta acá, la sesión es válida → pasar la petición
   return NextResponse.next();
 }
 
@@ -74,10 +95,5 @@ function validateToken(token: string): boolean {
 }
 
 export const config = {
-  matcher: [
-    // Aplica este middleware a todas las rutas excepto:
-    // - _next/static, _next/image, favicon.ico, public/ 
-    // - y la ruta /api/auth/login (ya gestionada aparte)
-    '/((?!_next/static|_next/image|favicon.ico|public|api/auth/login|api/(?:subcategories|productscategory)).*)',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

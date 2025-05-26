@@ -18,6 +18,7 @@ export const CartItemMod = ({ imageSrc, name, color, size, price, quantity }: It
           src={imageSrc}
           alt={name}
           className="rounded-lg"
+          style={{ width: 'auto', height: 'auto' }}
         />
       </div>
       <div className="flex flex-1 flex-col">

@@ -18,7 +18,7 @@ export const PanelRight = ({ isLogin, setIsLogin }: PanelRightProps) => {
     <div 
     ref={panelRightRef}
     className="sm:flex flex-col w-1/2 hidden h-screen 
-    overflow-hidden text-white font-bold">
+    overflow-hidden text-primary font-bold">
       <div className="w-full h-[120px] flex flex-col mt-20">
         <div className="w-full h-[50%]">
           <h1 className="text-2xl text-pretty text-center">
@@ -32,7 +32,7 @@ export const PanelRight = ({ isLogin, setIsLogin }: PanelRightProps) => {
           <BtnSubmit name={isLogin ? "Inscríbirse" : "Iniciar sesión"}
             type={undefined}
             onClicked={()=>{setIsLogin(!isLogin)}}
-            className="border border-solid
+            className="border border-solid text-black
          border-white w-[120px] py-4 lg:mt-0 sm:mt-10 rounded-lg"/> 
 
 

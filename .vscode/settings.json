@@ -1,5 +1,18 @@
 {
     "files.associations": {
         "*.css": "tailwindcss"
-    }
+    },
+    "tailwindCSS.includeLanguages": {
+    "html": "html",
+    "javascript": "javascript",
+    "typescript": "typescript",
+    "javascriptreact": "javascript",
+    "typescriptreact": "typescript"
+  },
+  "editor.quickSuggestions": {
+    "strings": true
+  },
+  "editor.colorDecorators": true,
+  "tailwindCSS.colorDecorators": true
+
 }

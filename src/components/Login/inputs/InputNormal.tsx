@@ -2,6 +2,7 @@
 import React, { ChangeEvent, useState } from "react";
 import { PasswordSvg } from "./PasswordSvg";
 import { NoVisiblePass } from "./NoVisblePass";
+
 interface InputProps {
     nameInput: string;
     name: string;
@@ -51,7 +52,6 @@ export const InputNormal = ({ nameInput, name, type, placeholder, isPassword = f
                     rounded-lg text-lg lg:text-[0.999rem] md:text-[0.999rem] sm:text-[0.999rem] 2xl:text-lg focus:outline-none focus:ring-2 
                     focus:ring-transparent focus:border-gray-500`}
                 />
-              
             ) : (
                 <input
                     id={name}
@@ -79,16 +79,15 @@ export const InputNormal = ({ nameInput, name, type, placeholder, isPassword = f
                     }
                 </button>
             )}
-              {   Icon !== undefined ?
-                      <button
-                      
-                      className="absolute right-4 top-1/2 text-2xl transform -translate-y-1/2 
-                       text-gray-600"
-                  >
+
+            {Icon && (
+                <button
+                    type="button"
+                    className="absolute right-4 top-1/2 text-2xl transform -translate-y-1/2 text-gray-600"
+                >
                     <Icon className="w-8 h-8 text-gray-300" />
-                  </button>
-                    
-                    : null}
+                </button>
+            )}
         </div>
     );
 };

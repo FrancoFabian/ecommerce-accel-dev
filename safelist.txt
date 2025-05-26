@@ -1,4 +1,0 @@
-bg-custom-gradient
-bg-custom-gradient-2
-bg-custom-gradient-3
-bg-back-gradient

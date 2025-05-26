@@ -176,6 +176,7 @@ export const CodeVerification = ({
         </div>
 
         <button
+          type="button"
           onClick={handleSubmit}
           className={`${buttonClassName} ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           disabled={isDisabled}

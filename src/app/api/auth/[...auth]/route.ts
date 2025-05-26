@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { ResponseCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
@@ -32,65 +31,81 @@ export async function POST(
         body: JSON.stringify(body),
       });
 
-      if (!response.ok) {
-        throw new Error('Invalid credentials');
-      }
-
       const data = await response.json();
+
+      if (!response.ok) {
+        return NextResponse.json(
+          { success: false, error: data.message || 'Credenciales incorrectas' },
+          { status: response.status }
+        );
+      }
       
       // Create response with cookies
-      const res = NextResponse.json({ success: true });
+      const res = NextResponse.json({ success: true, data });
       
-      // Set secure httpOnly cookie
-      res.cookies.set(createCookie('token', data.token, 60 * 60)); // 1 hour
+      // Guardar accessToken en httpOnly cookie
+      if (data.accessToken) {
+        res.cookies.set(createCookie('accessToken', data.accessToken, 24 * 60 * 60)); // 24 horas
+      }
 
-      // Optional: Set refresh token if implementing refresh flow
+      // Guardar refreshToken en httpOnly cookie
       if (data.refreshToken) {
-        res.cookies.set(createCookie('refresh_token', data.refreshToken, 7 * 24 * 60 * 60)); // 7 days
+        res.cookies.set(createCookie('refreshToken', data.refreshToken, 7 * 24 * 60 * 60)); // 7 días
+      }
+
+      // Mantener compatibilidad con token legacy si existe
+      if (data.token && !data.accessToken) {
+        res.cookies.set(createCookie('accessToken', data.token, 24 * 60 * 60)); // 24 horas
       }
 
       return res;
       
     } catch (error) {
+      console.error('Error en login:', error);
       return NextResponse.json(
-        { error: 'Authentication failed' },
-        { status: 401 }
+        { success: false, error: 'Error interno del servidor' },
+        { status: 500 }
       );
     }
   }
   
   if (authType === 'logout') {
     try {
-      // Get the token from cookies
-      const token = request.cookies.get('token')?.value;
+      // Get the accessToken from cookies
+      const accessToken = request.cookies.get('accessToken')?.value;
 
-      // Call backend logout endpoint
-      const response = await fetch(`${BACKEND_URL}/api/auth/logout`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      // Call backend logout endpoint if we have a token
+      if (accessToken) {
+        const response = await fetch(`${BACKEND_URL}/api/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+          },
+        });
 
-      if (!response.ok) {
-        throw new Error('Logout failed');
+        if (!response.ok) {
+          console.warn('Logout en backend falló, pero continuamos con limpieza local');
+        }
       }
 
       // Create response that clears cookies
       const res = NextResponse.json({ success: true });
-      res.cookies.delete('token');
-      res.cookies.delete('refresh_token');
+      res.cookies.delete('accessToken');
+      res.cookies.delete('refreshToken');
+      res.cookies.delete('token'); // Limpiar token legacy si existe
+      
       return res;
     } catch (error) {
+      console.error('Error en logout:', error);
       return NextResponse.json(
-        { error: 'Logout failed' },
+        { success: false, error: 'Error al cerrar sesión' },
         { status: 500 }
       );
     }
   }
 
   return NextResponse.json(
-    { error: 'Invalid auth type' },
+    { success: false, error: 'Tipo de autenticación inválido' },
     { status: 400 }
   );
 }

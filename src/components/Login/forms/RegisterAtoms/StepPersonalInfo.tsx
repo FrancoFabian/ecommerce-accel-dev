@@ -1,134 +1,153 @@
-// Paso 4: Datos personales
-
+"use client";
 import { InputForPassword } from "../../inputs/InputForPassword";
+import { DatePicker } from "@/components/calendario/datepicker";
+import { PersonalInfoStepProps } from "@/types/form.types";
 
 interface InputConfig {
-    id_register: string;
-    nameInput: string;
-    type: string;
-    placeholder: string;
-    isPassword?: boolean;
-    value: string;
-    onChange: (v: string) => void;
-    enablePasswordStrength?: boolean;
-    compareToPassword?: string;
-    errors?: Record<string, string>;
-  }
-  
+  id_register: string;
+  nameInput: string;
+  type: string;
+  placeholder: string;
+  isPassword?: boolean;
+  value: string | undefined;
+  onChange: (v: string) => void;
+  enablePasswordStrength?: boolean;
+  compareToPassword?: string;
+  errors?: Record<string, string>;
+}
 
 export const StepPersonalInfo = ({
-    formik,
-    contactMethod,
-  }: {
-    formik: any;
-    contactMethod: "email" | "phone";
-  }) => {
-    const InputsObject: InputConfig[] = [
-        {
-            id_register: "firstName_register",
-            nameInput: "Primer nombre", 
-            type: "text",
-            placeholder: "Primer nombre" ,
-            value: formik.values.firstName_register,
-            onChange: (v: string) => formik.setFieldValue("firstName_register", v),
-            enablePasswordStrength: false,
-            compareToPassword: undefined,
-            isPassword: false,
-            errors: formik.errors.firstName_register
-        },
-        {
-            id_register: "middleName_register",
-            nameInput: "Segundo nombre", 
-            type: "text",
-            placeholder: "Segundo nombre" ,
-            value: formik.values.middleName_register,
-            onChange: (v: string) => formik.setFieldValue("middleName_register", v),
-            enablePasswordStrength: false,
-            compareToPassword: undefined,
-            isPassword: false,
-            errors: formik.errors.middleName_register
-        },
-        {
-            id_register: "lastName_register",
-            nameInput: "Apellido paterno",
-            type: "text",
-            placeholder: "Apellido paterno" ,
-            value: formik.values.lastName_register,
-            onChange: (v: string) => formik.setFieldValue("lastName_register", v),
-            enablePasswordStrength: false,
-            compareToPassword: undefined,
-            isPassword: false,
-            errors: formik.errors.lastName_register
-        },
-        {
-            id_register: "secondLastName_register",
-            nameInput: "Apellido materno",
-            type: "text",
-            placeholder: "Apellido materno" ,
-            value: formik.values.secondLastName_register,
-            onChange: (v: string) => formik.setFieldValue("secondLastName_register", v),
-            enablePasswordStrength: false,
-            compareToPassword: undefined,
-            isPassword: false,
-            errors: formik.errors.secondLastName_register
-        },
-        {
-            id_register: "numberoremail_register",
-            nameInput: "Correo electrónico",
-            type: contactMethod === "email" ? "email" : "tel",
-            placeholder: "Correo electrónico" ,
-            value: formik.values.numberoremail_register,
-            onChange: (v: string) => formik.setFieldValue("numberoremail_register", v),
-            enablePasswordStrength: false,
-            compareToPassword: undefined,
-            isPassword: false,
-            errors: formik.errors.numberoremail_register
-        }
-    ]
-    return (
-      <div className="space-y-4">
-        {InputsObject.map(({id_register,nameInput, type,placeholder,value,onChange,enablePasswordStrength,compareToPassword,isPassword,errors}) => (
-          <>
+  formik,
+  contactMethod,
+  date,
+  setDate,
+}: PersonalInfoStepProps & {
+  date: Date | undefined;
+  setDate: (d: Date) => void;
+}) => {
+  const InputsObject: InputConfig[] = [
+    {
+      id_register: "firstName",
+      nameInput: "Primer nombre",
+      type: "text",
+      placeholder: "Primer nombre",
+      value: formik.values.firstName,
+      onChange: (v) => formik.setFieldValue("firstName", v),
+      isPassword: false,
+      enablePasswordStrength: false,
+      errors: formik.errors,
+    },
+    {
+      id_register: "middleName",
+      nameInput: "Segundo nombre",
+      type: "text",
+      placeholder: "Segundo nombre",
+      value: formik.values.middleName || "",
+      onChange: (v) => formik.setFieldValue("middleName", v),
+      isPassword: false,
+      enablePasswordStrength: false,
+      errors: formik.errors,
+    },
+    {
+      id_register: "lastName",
+      nameInput: "Apellido paterno",
+      type: "text",
+      placeholder: "Apellido paterno",
+      value: formik.values.lastName,
+      onChange: (v) => formik.setFieldValue("lastName", v),
+      isPassword: false,
+      enablePasswordStrength: false,
+      errors: formik.errors,
+    },
+    {
+      id_register: "secondLastName",
+      nameInput: "Apellido materno",
+      type: "text",
+      placeholder: "Apellido materno",
+      value: formik.values.secondLastName,
+      onChange: (v) => formik.setFieldValue("secondLastName", v),
+      isPassword: false,
+      enablePasswordStrength: false,
+      errors: formik.errors,
+    },
+    {
+      id_register: "alternativeContact",
+      nameInput: contactMethod === "email" ? "Teléfono" : "Correo electrónico",
+      type: contactMethod === "email" ? "tel" : "email",
+      placeholder:
+        contactMethod === "email" ? "Número de teléfono" : "Correo electrónico",
+      value: formik.values.alternativeContact,
+      onChange: (v) => formik.setFieldValue("alternativeContact", v),
+      isPassword: false,
+      enablePasswordStrength: false,
+      errors: formik.errors,
+    },
+  ];
+
+  return (
+    <div className="h-95 space-y-6">
+  {/* ------------ encabezado ------------ */}
+  <header className="pb-12 col-span-2">
+    <h2 className="mb-3 text-3xl font-bold text-center">
+      Por favor, ingrese su información personal
+    </h2>
+    <h4 className="text-center text-slate-400">
+      Para integrar su información en el sistema
+    </h4>
+  </header>
+
+  {/* ------------ grid 2 × 3 ------------ */}
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    {/* 1 / 6  Fecha de nacimiento */}
+    <div className="space-y-2">
+      <DatePicker
+        value={date}
+        onChange={(d) => {
+          setDate(d);
+          formik.setFieldValue("birthDate", d);
+        }}
+      />
+      {formik.touched.birthDate && formik.errors.birthDate && (
+        <p className="text-red-500 text-sm">{formik.errors.birthDate}</p>
+      )}
+    </div>
+
+    {/* 2-6 / 6  Inputs */}
+    {InputsObject.map(
+      ({
+        id_register,
+        nameInput,
+        type,
+        placeholder,
+        value,
+        onChange,
+        enablePasswordStrength,
+        compareToPassword,
+        isPassword,
+        errors,
+      }) => (
+        <div key={id_register}>
           <InputForPassword
-            key={id_register}
+            id={id_register}
             nameInput={nameInput}
             type={type}
             placeholder={placeholder}
             value={value}
-            onChange={onChange}
+            onChange={(v) => {
+              onChange(v);
+              formik.setFieldTouched(id_register, true);
+            }}
             enablePasswordStrength={enablePasswordStrength}
             compareToPassword={compareToPassword}
             isPassword={isPassword}
           />
-          {errors && (
+          {errors && errors[id_register] && (
             <p className="text-red-500 text-sm">{errors[id_register]}</p>
           )}
-          </>
-          
-        ))}
-  
-        {/* Alternate contact */}
-        {/* <div className="space-y-2">
-          <Label htmlFor="alternativeContact">
-            {contactMethod === "email" ? "Phone Number" : "Email Address"}
-          </Label>
-          <Input
-            id="alternativeContact"
-            name="alternativeContact"
-            type={contactMethod === "email" ? "tel" : "email"}
-            onChange={formik.handleChange}
-            value={formik.values.alternativeContact}
-            className={cn(
-              "w-full px-5 py-3 border border-gray-300 rounded text-base",
-              formik.errors.alternativeContact && "border-red-500"
-            )}
-          />
-          {formik.errors.alternativeContact && (
-            <p className="text-red-500 text-sm">
-              {formik.errors.alternativeContact}
-            </p>
-          )}
-        </div> */}
-      </div>
-    );
-  }
+        </div>
+      )
+    )}
+  </div>
+</div>
+  );
+};
