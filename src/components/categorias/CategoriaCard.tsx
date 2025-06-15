@@ -4,9 +4,10 @@ interface CategoryCardProps {
   description: string;
   icon: React.ReactNode | undefined;
   onClick: () => void;
+  gradient?: string;
 }
 
-export const CategoryCard = ({ title, description, icon, onClick }: CategoryCardProps) => {
+export const CategoryCard = ({ title, description, icon, onClick, gradient }: CategoryCardProps) => {
   return (
     <div
       className={`group cursor-pointer

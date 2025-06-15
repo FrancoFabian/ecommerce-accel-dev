@@ -1,22 +1,18 @@
 'use client';
 
 import { ProductCardProps } from '@/types/product';
+import { useAppDispatch } from '@/store/hooks';
+import { addOrIncrement } from '@/store/features/cartSlice'; 
 import { FavoriteBtn } from './FavoriteBtn';
 // import { StarsQualification } from './starsQualification';
 import Image from 'next/image';
 
 
-export const ProductCard = ({
-    //producto_id,
-    modelo,
-    titulo,
-    marca,
-    img_portada,
-    categorias,
-    precios,
-    existencia
-}: ProductCardProps) => {
+export const ProductCard = (props: ProductCardProps) => {
     // Encontrar el precio más alto entre todos los precios disponibles
+     const dispatch = useAppDispatch();
+     const {titulo, img_portada, precios, existencia, marca, modelo, categorias } =
+    props;
     const highestPrice = Math.max(
         precios.precio_1,
         precios.precio_especial,
@@ -87,7 +83,9 @@ export const ProductCard = ({
 
                 {/* Add to cart button */}
                 <button className="mt-2 w-full py-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-md
-         hover:bg-blue-700 transition-colors duration-300">
+         hover:bg-blue-700 transition-colors duration-300"
+         onClick={() => dispatch(addOrIncrement(props))}
+         >
                     Añadir al carrito
                 </button>
             </div>

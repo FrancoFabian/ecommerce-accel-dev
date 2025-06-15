@@ -38,7 +38,7 @@ export const Login = () => {
     try {
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
-      
+
       // Debug: verificar qué valores se están enviando
       console.log("Debug - Email:", email);
       console.log("Debug - Password:", password);
@@ -154,9 +154,13 @@ export const Login = () => {
       </div>
 
       <BtnSubmit
+        type="button"
         name={pending ? "Iniciando sesión..." : "Iniciar con Google"}
-        type="submit"
-        onClicked={undefined}
+        onClicked={() => {
+          // lee la URL base de tu backend (evitas hard-codear)
+          const api = process.env.NEXT_PUBLIC_API_URL!;
+          window.location.assign(`${api}/oauth2/authorization/google`);
+        }}
         className="relative z-0 inline-flex items-center justify-center box-border appearance-none select-none 
                 whitespace-nowrap font-normal subpixel-antialiased overflow-hidden tap-highlight-transparent outline-none 
                 focus-visible:z-10 focus-visible:outline-2 px-4 min-w-20 h-10 py-6 border-2 border-solid border-gray-300
@@ -171,7 +175,7 @@ export const Login = () => {
         className="flex w-[200px] justify-center text-md
                 bg-slate-200 text-primary py-2 rounded-lg mt-2 items-center"
         onClick={() => {
-             router.push('/signup');
+          router.push("/signup");
         }}
       >
         Crear una cuenta

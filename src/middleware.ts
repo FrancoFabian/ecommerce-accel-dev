@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
-
+// src/middleware.ts
 interface DecodedToken {
   exp: number;
   sub: string;
@@ -10,90 +10,112 @@ interface DecodedToken {
 }
 
 export async function middleware(request: NextRequest) {
-  // Permitir siempre las rutas de la API de autenticación
-  if (request.nextUrl.pathname.startsWith('/api/auth')) {
+  const { pathname } = request.nextUrl;
+
+  /* ------------------------------------------------------------------ */
+  /* 1) Dejar pasar siempre llamadas de autenticación /api/auth/*       */
+  /* ------------------------------------------------------------------ */
+  if (pathname.startsWith('/api/auth')) {
+    return NextResponse.next();
+  }
+  if (
+    pathname.startsWith('/api/productscategory') ||
+    pathname.startsWith('/api/subcategories')
+  ) {
     return NextResponse.next();
   }
 
-  // Rutas que se pueden visitar sin estar autenticado
-  const publicPaths = ['/', '/login', '/signup', '/forgot-password',  '/categorias', '/doblefactorauth'];
+  /* ------------------------------------------------------------------ */
+  /* 2) Definir rutas públicas (permitidas sin login)                   */
+  /*    -> aceptan la ruta exacta O cualquier sub-ruta (startsWith)     */
+  /* ------------------------------------------------------------------ */
+  const publicPaths = [
+    '/',                // home
+    '/login',           // página de login
+    '/signup',          // registro
+    '/forgot-password', // recuperar contraseña
+    '/categorias',      // categorías y sub-categorías
+    '/doblefactorauth', // verificación 2FA
+    '/oauth-success',   // autenticación OAuth exitosa
+    '/api/auth/google-callback'
+  ];
 
-  // Extraemos los tokens y, si existen, los validamos
-  const accessToken = request.cookies.get('accessToken')?.value;
-  const refreshToken = request.cookies.get('refreshToken')?.value;
-  
-  // Mantener compatibilidad con cookies legacy
-  const legacyToken = request.cookies.get('token')?.value;
-  const legacyRefreshToken = request.cookies.get('refresh_token')?.value;
-  
-  const tokenToValidate = accessToken || legacyToken;
-  const refreshTokenToUse = refreshToken || legacyRefreshToken;
-  
-  const isAuth = tokenToValidate ? validateToken(tokenToValidate) : false;
+  const isPublic = publicPaths.some(p =>
+    pathname === p || pathname.startsWith(p + '/')
+  );
+  if (isPublic) {
+    return NextResponse.next();
+  }
 
-  // 1) Si la ruta es "/login" y el usuario YA está logueado, redirige a "/micuenta"
-  if (request.nextUrl.pathname === '/login') {
+  /* ------------------------------------------------------------------ */
+  /* 3) Obtener tokens (nuevo y legacy)                                 */
+  /* ------------------------------------------------------------------ */
+  const accessToken  =
+    request.cookies.get('accessToken')?.value ||
+    request.cookies.get('token')?.value;  // legacy
+  const refreshToken =
+    request.cookies.get('refreshToken')?.value ||
+    request.cookies.get('refresh_token')?.value; // legacy
+
+  const isAuth = accessToken ? validateToken(accessToken) : false;
+
+  /* ------------------------------------------------------------------ */
+  /* 4) Caso especial: si visita /login y YA está autenticado → /micuenta */
+  /* ------------------------------------------------------------------ */
+  if (pathname === '/login') {
     if (isAuth) {
       return NextResponse.redirect(new URL('/micuenta', request.url));
     }
-    // Si no está logueado, puede ver la página /login
-    return NextResponse.next();
+    return NextResponse.next(); // no autenticado ⇒ puede ver /login
   }
 
-  // 2) Verificar si es una ruta pública distinta de "/login"
-  //    (p.ej. "/", "/register", "/forgot-password")
-  if (publicPaths.includes(request.nextUrl.pathname)) {
-    return NextResponse.next();
-  }
-
-  // 3) Para rutas protegidas, si no hay sesión válida:
+  /* ------------------------------------------------------------------ */
+  /* 5) Rutas protegidas: si no hay sesión válida                       */
+  /* ------------------------------------------------------------------ */
   if (!isAuth) {
-    // Intentar refrescar la sesión si tenemos un refresh token
-    if (refreshTokenToUse) {
+    // Intentar refrescar con refreshToken
+    if (refreshToken) {
       try {
-        const response = await fetch(`${request.nextUrl.origin}/api/auth/refresh`, {
+        const resp = await fetch(`${request.nextUrl.origin}/api/auth/refresh`, {
           method: 'POST',
-          headers: {
-            Cookie: `refreshToken=${refreshTokenToUse}`,
-          },
+          headers: { Cookie: `refreshToken=${refreshToken}` },
         });
-        if (response.ok) {
-          // Sesión refrescada con éxito, deja pasar
-          return NextResponse.next();
+        if (resp.ok) {
+          return NextResponse.next(); // refrescado con éxito
         }
-      } catch (error) {
-        // Ignoramos el error y redirigimos abajo
-        console.warn('Error al intentar refrescar token:', error);
+      } catch (err) {
+        console.warn('Error al refrescar token:', err);
       }
     }
-    // No se pudo refrescar (o no había refreshToken), redirigir a /login
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    
-    // Limpiar todas las cookies de autenticación
-    response.cookies.delete('accessToken');
-    response.cookies.delete('refreshToken');
-    response.cookies.delete('verificationToken');
-    // Limpiar cookies legacy
-    response.cookies.delete('token');
-    response.cookies.delete('refresh_token');
-    
-    return response;
+
+    // No autenticado y sin refresh válido ⇒ limpiar cookies y redirigir
+    const res = NextResponse.redirect(new URL('/login', request.url));
+    ['accessToken', 'refreshToken', 'verificationToken', 'token', 'refresh_token']
+      .forEach(name => res.cookies.delete(name));
+    return res;
   }
 
-  // 4) Si llegamos hasta acá, la sesión es válida → pasar la petición
+  /* ------------------------------------------------------------------ */
+  /* 6) Si llega aquí significa que la sesión es válida                 */
+  /* ------------------------------------------------------------------ */
   return NextResponse.next();
 }
 
+/* -------------------------------------------------------------------- */
+/* Validar JWT (30 s de margen para evitar race conditions)             */
+/* -------------------------------------------------------------------- */
 function validateToken(token: string): boolean {
   try {
     const decoded = jwtDecode<DecodedToken>(token);
-    // Se suma un buffer de 30s para prevenir casos límite
-    return decoded.exp * 1000 > Date.now() + 30000;
+    return decoded.exp * 1000 > Date.now() + 30_000;
   } catch {
     return false;
   }
 }
 
+/* -------------------------------------------------------------------- */
+/* Aplicar middleware a todo excepto estáticos                          */
+/* -------------------------------------------------------------------- */
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

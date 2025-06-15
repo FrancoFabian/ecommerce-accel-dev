@@ -7,20 +7,21 @@ interface BreadcrumbProps {
 
 export const Breadcrumbs = ({ items, onNavigate }: BreadcrumbProps) => {
   return (
-    <nav className="my-4 px-2 py-2" aria-label="Breadcrumbs">
-      <ol className="flex flex-wrap list-none rounded-sm">
+    <nav className="sticky top-0 z-10 bg-white/70 backdrop-blur-xl
+                  border-b border-blue-100" aria-label="Breadcrumbs">
+      <ol className="flex flex-wrap items-center gap-2 px-4 py-3 max-w-7xl mx-auto">
         {items.map((item, index) => (
           <li key={item.id} className="flex items-center">
             {index > 0 && (
-              <span aria-hidden="true" className="px-1 text-foreground/50">
-                <HiChevronRight className="w-4 h-4" />
-              </span>
+             
+                <HiChevronRight className="w-4 h-4 text-gray-400" />
+              
             )}
             {index === items.length - 1 ? (
               // Current page (active breadcrumb)
               <span
-                className="flex ml gap-1 items-center whitespace-nowrap 
-                line-clamp-1 text-sm text-primary bg-primary/20 px-2 rounded-xl font-bold cursor-pointer transition-opacity"
+                className="px-4 py-2 rounded-full text-primary font-semibold
+                             bg-blue-100 shadow-sm text-sm"
                 aria-disabled="true"
                 role="link"
                 aria-current="page"
@@ -31,7 +32,8 @@ export const Breadcrumbs = ({ items, onNavigate }: BreadcrumbProps) => {
               // Navigable breadcrumb
               <button
                 onClick={() => onNavigate(item.id)}
-                className="flex gap-1 items-center cursor-pointer whitespace-nowrap line-clamp-1 text-foreground/50 text-sm hover:opacity-80 transition-opacity"
+                className="px-4 py-2 rounded-full text-sm text-gray-600
+                               hover:text-primary hover:bg-blue-50 transition"
               >
                 {item.title}
               </button>

@@ -4,4 +4,5 @@ export interface Category {
     description: string;
     icon?: React.ReactNode | undefined;
     isEndpoint?: boolean;
+    gradient?:string ,
   }

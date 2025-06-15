@@ -1,3 +1,6 @@
+'use client';
+import { useAppSelector } from '@/store/hooks';
+import { selectCartCount } from '@/store/features/cartSlice';
 import { NotificationIcon } from "@/icons/NotificationIcon";
 import { SearchIcon } from "@/icons/SearchIcon";
 import Image from "next/image";
@@ -24,7 +27,10 @@ export const UserMenu = ({
     userMenuButtonRef,
     cartMenuButtonRef,
     searchMenuButtonRef,
-  }: UserMenuProps) => (
+  }: UserMenuProps) => {
+     // 1. Obtén el total de productos en el carrito
+    const cartCount = useAppSelector(selectCartCount);
+    return(
   <ul className="hidden lg:flex sm:flex items-center gap-2 ml-auto">
       {/* Search Icon */}
       <li>
@@ -43,9 +49,11 @@ export const UserMenu = ({
               className="p-2 rounded-full hover:bg-gray-100 transition relative"
           >
               <HiShoppingCart className="w-6 h-6" color="black" />
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-600 text-white text-xs rounded-full flex items-center justify-center">
-                  5
-              </span>
+               {cartCount > 0 && (
+                        <span className="absolute top-1 right-1 w-4 h-4 bg-red-600 text-white text-xs rounded-full flex items-center justify-center">
+                            {cartCount}
+                        </span>
+                    )}
           </button>
       </li>
       <li>
@@ -77,7 +85,7 @@ export const UserMenu = ({
           </button>
       </li>
   </ul>
-);
+);}
   
 
   
