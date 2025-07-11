@@ -8,6 +8,7 @@ import { OptionsUserMenu } from "./OptionsUserMenu";
 import { MenuCartShopping } from "./MenuCartShopping";
 import { SerchandcartMenu } from "./menumobile/SerchandcartMenu";
 import { MenuSearch } from "./MenuSearch";
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const links = [
     { name: "Inicio", href: "/", icon: undefined },
@@ -19,6 +20,8 @@ const links = [
 export const Navbar = () => {
     const [openMenu, setOpenMenu] = useState<string | null>(null);
     const openMenuRef = useRef<string | null>(null);
+    const { status, user } = useAuth();
+    const isAuthenticated = status === 'authenticated' && user;
    
     const notificationsRef = useRef<HTMLDivElement>(null);
     const userMenuRef = useRef<HTMLDivElement>(null);
@@ -35,12 +38,16 @@ export const Navbar = () => {
       }, []);
     
       const toggleUserMenu = useCallback(() => {
+        // Solo permitir abrir el menú de usuario si está autenticado
+        if (!isAuthenticated) return;
         setOpenMenu((prevMenu) => (prevMenu === 'userMenu' ? null : 'userMenu'));
-      }, []);
+      }, [isAuthenticated]);
     
       const toggleNotifications = useCallback(() => {
+        // Solo permitir abrir las notificaciones si está autenticado
+        if (!isAuthenticated) return;
         setOpenMenu((prevMenu) => (prevMenu === 'notifications' ? null : 'notifications'));
-      }, []);
+      }, [isAuthenticated]);
     
       const toggleCartMenu = useCallback(() => {
         setOpenMenu((prevMenu) => (prevMenu === 'cartMenu' ? null : 'cartMenu'));
@@ -101,9 +108,14 @@ export const Navbar = () => {
                 />
                 <SerchandcartMenu/>
             </header>
-            {/* Menú de notificaciones */}
-            <NotificationsMenu isVisible={openMenu === 'notifications'} ref={notificationsRef} />
-            <OptionsUserMenu isOpen={openMenu === 'userMenu'} ref={userMenuRef} />
+            {/* Menú de notificaciones - solo mostrar si está autenticado */}
+            {isAuthenticated && (
+              <NotificationsMenu isVisible={openMenu === 'notifications'} ref={notificationsRef} />
+            )}
+            {/* Menú de opciones del usuario - solo mostrar si está autenticado */}
+            {isAuthenticated && (
+              <OptionsUserMenu isOpen={openMenu === 'userMenu'} ref={userMenuRef} />
+            )}
             <MenuCartShopping isVisible={openMenu === 'cartMenu'} ref={cartMenuRef} />
             <MenuSearch isVisible={openMenu === 'searchMenu'} ref={searchMenuRef} />
             {/* Menú para dispositivos móviles */}

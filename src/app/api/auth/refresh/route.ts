@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
 export async function POST(request: Request) {
   try {
     // Obtener refreshToken desde las cookies
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     // Llamar al backend para refrescar el token
-    const response = await fetch('http://localhost:8080/api/auth/refresh', {
+    const response = await fetch(`${BACKEND_URL}/api/auth/refresh`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

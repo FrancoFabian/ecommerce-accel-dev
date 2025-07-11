@@ -4,9 +4,10 @@ import { BtnSubmit } from "../submit/BtnSubmit";
 import { SvgIconBtnGoogle } from "../submit/SvgIconBtnGoogle";
 import { ForgotPassword } from "../check/ForgotPassword";
 import { LeftArrowIcon } from "@/icons/LeftArrowIcon";
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
+import { useAuth } from '@/lib/hooks/useAuth';
 
 interface FormState {
   success: boolean | null;
@@ -15,6 +16,7 @@ interface FormState {
 
 export const Login = () => {
   const router = useRouter();
+  const { checkAuth } = useAuth();
   const [formValues, setFormValues] = useState<{
     email: string;
     password: string;
@@ -39,11 +41,6 @@ export const Login = () => {
       const email = formData.get("email") as string;
       const password = formData.get("password") as string;
 
-      // Debug: verificar qué valores se están enviando
-      console.log("Debug - Email:", email);
-      console.log("Debug - Password:", password);
-      console.log("Debug - FormValues:", formValues);
-
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -63,8 +60,15 @@ export const Login = () => {
       const data = await response.json();
 
       if (data.success) {
-        router.push("/micuenta");
-        router.refresh(); // Refresh the page to update server components
+        // Forzar la actualización del estado de autenticación
+        await checkAuth(true);
+        
+        // Pequeño delay para asegurar que el estado se actualice
+        setTimeout(() => {
+          router.push("/micuenta");
+          router.refresh();
+        }, 100);
+        
         return { success: true, message: "Inicio de sesión exitoso" };
       }
 
@@ -83,6 +87,13 @@ export const Login = () => {
     message: "",
   });
   const { pending } = useFormStatus();
+
+  // Si el login fue exitoso, forzar la actualización del estado de autenticación
+  useEffect(() => {
+    if (state.success) {
+      checkAuth(true);
+    }
+  }, [state.success, checkAuth]);
 
   return (
     <form action={formAction} className="form-login">

@@ -2,7 +2,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtDecode } from 'jwt-decode';
-// src/middleware.ts
+
 interface DecodedToken {
   exp: number;
   sub: string;
@@ -26,29 +26,7 @@ export async function middleware(request: NextRequest) {
   }
 
   /* ------------------------------------------------------------------ */
-  /* 2) Definir rutas públicas (permitidas sin login)                   */
-  /*    -> aceptan la ruta exacta O cualquier sub-ruta (startsWith)     */
-  /* ------------------------------------------------------------------ */
-  const publicPaths = [
-    '/',                // home
-    '/login',           // página de login
-    '/signup',          // registro
-    '/forgot-password', // recuperar contraseña
-    '/categorias',      // categorías y sub-categorías
-    '/doblefactorauth', // verificación 2FA
-    '/oauth-success',   // autenticación OAuth exitosa
-    '/api/auth/google-callback'
-  ];
-
-  const isPublic = publicPaths.some(p =>
-    pathname === p || pathname.startsWith(p + '/')
-  );
-  if (isPublic) {
-    return NextResponse.next();
-  }
-
-  /* ------------------------------------------------------------------ */
-  /* 3) Obtener tokens (nuevo y legacy)                                 */
+  /* 2) Obtener tokens (nuevo y legacy)                                 */
   /* ------------------------------------------------------------------ */
   const accessToken  =
     request.cookies.get('accessToken')?.value ||
@@ -60,13 +38,34 @@ export async function middleware(request: NextRequest) {
   const isAuth = accessToken ? validateToken(accessToken) : false;
 
   /* ------------------------------------------------------------------ */
-  /* 4) Caso especial: si visita /login y YA está autenticado → /micuenta */
+  /* 3) Rutas que requieren NO estar autenticado (login, signup)        */
   /* ------------------------------------------------------------------ */
-  if (pathname === '/login') {
+  if (pathname === '/login' || pathname === '/signup') {
     if (isAuth) {
       return NextResponse.redirect(new URL('/micuenta', request.url));
     }
-    return NextResponse.next(); // no autenticado ⇒ puede ver /login
+    return NextResponse.next(); // no autenticado ⇒ puede ver estas páginas
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* 4) Definir rutas públicas (permitidas sin login)                   */
+  /* ------------------------------------------------------------------ */
+  const publicPaths = [
+    '/',                // home
+    '/forgot-password', // recuperar contraseña
+    '/categorias',      // categorías y sub-categorías
+    '/productos',       // productos (público)
+    '/doblefactorauth', // verificación 2FA
+    '/oauth-success',   // autenticación OAuth exitosa
+    '/api/auth/google-callback'
+  ];
+
+  const isPublic = publicPaths.some(p =>
+    pathname === p || pathname.startsWith(p + '/')
+  );
+  
+  if (isPublic) {
+    return NextResponse.next();
   }
 
   /* ------------------------------------------------------------------ */

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
 
 export async function POST(request: Request) {
   try {
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
     }
 
     // Llamar al backend real
-    const response = await fetch('http://localhost:8080/api/auth/contact', {
+    const response = await fetch(`${BACKEND_URL}/api/auth/contact`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

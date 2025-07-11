@@ -15,9 +15,10 @@ const createCookie = (name: string, value: string, maxAge: number): ResponseCook
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { auth: string[] } }
+  { params }: { params: Promise<{ auth: string[] }> }
 ) {
-  const authType = params.auth[0]; // 'login' or 'logout'
+  const resolvedParams = await params;
+  const authType = resolvedParams.auth[0]; // 'login' or 'logout'
   
   if (authType === 'login') {
     const body = await request.json();

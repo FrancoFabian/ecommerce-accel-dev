@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8080';
 
 export async function POST(request: Request) {
   try {
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     // Llamar al backend real con el verificationToken
-    const response = await fetch('http://localhost:8080/api/auth/password', {
+    const response = await fetch(`${BACKEND_URL}/api/auth/password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
