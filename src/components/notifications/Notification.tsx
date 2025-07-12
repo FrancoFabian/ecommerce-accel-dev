@@ -13,7 +13,7 @@ export const Notification = ({ notification, onActionClick }: NotificationProps)
   const { avatar, message, time, actions } = notification;
 
   return (
-    <div className="flex gap-3 border-b border-divider px-6 py-4 bg-primary-50/50">
+    <div className="flex gap-3 border-b border-gray-200 px-6 py-4">
       <div className="relative flex-none">
         <div className="relative inline-flex shrink-0">
           <span className="flex relative justify-center items-center w-10 h-10 bg-default text-default-foreground rounded-full">
@@ -24,7 +24,7 @@ export const Notification = ({ notification, onActionClick }: NotificationProps)
       </div>
       <div className="flex flex-col gap-1">
         <p className="text-sm text-foreground">
-          <strong className="font-medium">{message.user}</strong> {message.content}
+          <strong className="font-semibold">{message.user}</strong> {message.content}
         </p>
         <time className="text-xs text-gray-500">{time}</time>
         <div className="flex gap-2 pt-2">

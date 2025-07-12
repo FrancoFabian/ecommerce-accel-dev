@@ -43,6 +43,7 @@ export default function DeleteAccountModal({ isOpen, onClose }: DeleteAccountMod
           /> */}
           <InputNormal 
           nameInput="ELIMINAR"
+          name="deleteConfirm"
            type="text" 
            placeholder="ELIMINAR" 
            isPassword={false} 

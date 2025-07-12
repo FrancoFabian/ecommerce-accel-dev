@@ -4,6 +4,7 @@ interface CategoryCardProps {
   description: string;
   icon: React.ReactNode | undefined;
   onClick: () => void;
+  gradient?: string;
 }
 
 export const CategoryCard = ({ title, description, icon, onClick }: CategoryCardProps) => {

@@ -4,6 +4,7 @@ import { PasswordSvg } from "./PasswordSvg";
 import { NoVisiblePass } from "./NoVisblePass";
 
 interface InputProps {
+  id?: string;
   nameInput: string;
   type: string;
   placeholder: string;
@@ -15,6 +16,7 @@ interface InputProps {
 }
 
 export const InputForPassword = ({
+  id,
   nameInput,
   type,
   placeholder,
@@ -81,7 +83,7 @@ export const InputForPassword = ({
     <div className="relative w-full flex flex-col py-2  
     sm:py-0 md:py-0 lg:py-0 2xl:py-2">
     <label
-      htmlFor={nameInput}
+      htmlFor={id}
       className="w-[300px] absolute text-lg z-10 text-gray-700 -left-4 translate-y-1 
       sm:translate-y-0 md:translate-y-0 2xl:translate-y-1
                  scale-75 pointer-events-none flex"
@@ -93,7 +95,7 @@ export const InputForPassword = ({
     {/* Contenedor principal del input */}
     <div className="relative w-full">
       <input
-        id={nameInput}
+        id={id}
         type={isPassword && showPassword ? "text" : type}
         name={nameInput}
         value={value}

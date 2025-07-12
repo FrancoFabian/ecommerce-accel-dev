@@ -1,24 +1,91 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
+/* ✅ LÍNEA AGREGADA PARA TAILWIND V4 DARK MODE */
+@variant dark (&:where(.dark, .dark *));
 
-:root {
-  --background: #000;
-  --foreground: #171717;
+/* ② Tokens de diseño — colores + breakpoints + tipografía + lo que quieras */
+@theme {
+  /* Colores (crean automáticamente bg-primary, text-primary, etc.) */
+  --color-primary       : #006fee;
+  --color-warning          : #eda319;
+  --color-success       : #17c964;
+  --color-danger          : #f54180;
+  --color-danger-600           : #d6366e;
+  --color-danger-700           : #b62d5d;
+  --color-danger-800           : #96234b;
+  --color-danger-900           : #741a3a;
+
+  /* Breakpoints (crean sm:, md:, lg:, …) */
+  /* --breakpoint-sm : 40rem;    
+     --breakpoint-md : 48rem;    
+     --breakpoint-lg : 64rem;   
+     --breakpoint-xl : 80rem;    
+     --breakpoint-2xl: 96rem;  
+  */
+
+  /* Variables globales que usarás con `var()` directamente */
+  --background : #ffffff;
+  --color-context : #111827;
+  --color-inputfound : #e7e9f4;
+}
+
+/* ④ Estilos base opcionales */
+body {
+  background: var(--background);
+  color:      var(--foreground);
+}
+
+/* ⑤ UTILIDADES PERSONALIZADAS — aquí van tus gradientes y extras */
+@layer utilities {
+  /* Gradientes */
+  .bg-custom-gradient  { background-image: linear-gradient(0deg ,rgba(17,90,236,1) 0%, rgba(13,135,217,1) 100%); }
+  .bg-custom-gradient-2{ background-image: linear-gradient(85deg,rgba(17,90,236,1) 0%, rgba(13,135,217,1) 100%); }
+  .bg-custom-gradient-3{ background-image: radial-gradient(circle ,rgba(14,14,19,1) 0%, rgba(27,46,125,1) 100%); }
+  .bg-back-gradient    { background-image: linear-gradient(90deg,rgba(17,24,39,1) 0%, rgba(17,34,70,1) 50%, rgba(26,36,108,1) 100%); }
+
+  /* Otros helpers que ya tenías */
+  .no-spinner::-webkit-inner-spin-button,
+  .no-spinner::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+  .no-spinner { -moz-appearance:textfield; }
+  .scrollable-container { -webkit-overflow-scrolling: touch; }
+}
+
+/* ⑥ Fuerza la inclusión de utilidades si se construyen dinámicamente */
+/* globals.css — deja sólo las variantes que no rompen nada */
+@layer components {
+  .container-custom {
+    @apply mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+  .form-login {
+    @apply 
+    /* Base */
+    flex bg-black w-full flex-col gap-2 bg-white pt-2 pb-20 px-10 overflow-y-auto
+    /* Small */
+    sm:w-full sm:h-[80.6dvh] sm:gap-4 sm:rounded-none sm:shadow-none sm:pt-10
+    /* Medium */
+    md:w-[500px] md:h-[70.6vh] md:gap-4 md:shadow-xl md:rounded-lg md:px-14 md:pt-[5dvh] md:overflow-hidden
+    /* Large */
+    lg:w-[500px] lg:h-[80.6dvh] lg:gap-4 lg:shadow-xl lg:rounded-lg lg:px-16 lg:pt-10 lg:pb-0
+    /* 2XL */
+    2xl:w-[500px] 2xl:gap-2 2xl:px-16 2xl:p-10
+  }
 }
 
 @layer utilities {
-  .no-spinner::-webkit-inner-spin-button,
-  .no-spinner::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  /* "blob" flotando en el fondo */
+  @keyframes blob {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(30%,-20%) scale(1.1); }
+    66%      { transform: translate(-20%,15%) scale(0.9); }
   }
+  .animate-blob      { animation: blob 18s ease-in-out infinite; }
+  .animation-delay-2 { animation-delay: 2s; }
+  .animation-delay-4 { animation-delay: 4s; }
 
-  .no-spinner {
-    -moz-appearance: textfield; /* Firefox */
+  /* fade-in desde abajo para las cards */
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0);  }
   }
-}
-.scrollable-container {
-  -webkit-overflow-scrolling: touch;
+  .animate-fade-in   { animation: fade-in-up .45s both; }
 }

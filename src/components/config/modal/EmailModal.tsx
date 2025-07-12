@@ -26,7 +26,7 @@ export default function EmailModal({ isOpen, onClose }: EmailModalProps) {
         <h2 className="text-2xl font-bold mb-4">Cambiar correo electrónico</h2>
         <p className="text-gray-600 mb-4">Ingresa tu nuevo correo electrónico. Necesitarás verificarlo después.</p>
         <form onSubmit={handleSubmit}>
-          <InputNormal nameInput="Correo electronico" 
+          <InputNormal nameInput="Correo electronico" name="email" 
           type="email" placeholder="Correo electronico"
            isPassword={false} 
            value={newEmail} onChange={(value) =>  setNewEmail(value)} 

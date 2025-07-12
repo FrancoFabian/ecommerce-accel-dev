@@ -14,9 +14,9 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({ currentStep }) => 
           aria-valuemax={100}
           role="progressbar"
         >
-          <div className="z-0 relative bg-default-300/50 overflow-hidden h-3 rounded-full">
+          <div className="z-0 relative bg-gray-900 overflow-hidden h-3 rounded-full">
             <div
-              className="h-full bg-primary rounded-full transition-transform !duration-500 !bg-foreground"
+              className="h-full bg-gray-200 rounded-full transition-transform !duration-500 !bg-context"
               style={{ transform: `translateX(${currentStep >= 1 ? '0%' : '-100%'})` }}
             ></div>
           </div>
@@ -24,7 +24,7 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({ currentStep }) => 
       </div>
       {/* Paso 2 */}
       <div className="flex w-full flex-col items-start gap-2">
-        <p className="text-small font-medium">Delivery</p>
+        <p className="text-small font-semibold">Delivery</p>
         <div
           className="flex flex-col gap-2 w-full"
           aria-valuenow={currentStep >= 2 ? 100 : 0}
@@ -32,9 +32,9 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({ currentStep }) => 
           aria-valuemax={100}
           role="progressbar"
         >
-          <div className="z-0 relative bg-default-300/50 overflow-hidden h-3 rounded-full">
+          <div className="z-0 relative bg-gray-200 overflow-hidden h-3 rounded-full">
             <div
-              className="h-full bg-primary rounded-full transition-transform !duration-500 !bg-foreground"
+              className="h-full bg-gray-200 rounded-full transition-transform !duration-500 !bg-context"
               style={{ transform: `translateX(${currentStep >= 2 ? '0%' : '-100%'})` }}
             ></div>
           </div>
@@ -50,9 +50,9 @@ export const ProgressSteps: React.FC<ProgressStepsProps> = ({ currentStep }) => 
           aria-valuemax={100}
           role="progressbar"
         >
-          <div className="z-0 relative bg-default-300/50 overflow-hidden h-3 rounded-full">
+          <div className="z-0 relative bg-gray-200 overflow-hidden h-3 rounded-full">
             <div
-              className="h-full bg-primary rounded-full transition-transform !duration-500 !bg-foreground"
+              className="h-full bg-gray-200 rounded-full transition-transform !duration-500 !bg-context"
               style={{ transform: `translateX(${currentStep >= 3 ? '0%' : '-100%'})` }}
             ></div>
           </div>

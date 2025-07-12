@@ -22,7 +22,8 @@ export const MenuCartShopping = memo(forwardRef<HTMLDivElement,MenuCartShoppingP
         bg-white shadow-2xl 
         rounded-xl 
         lg:w-[400px]
-        sm:w-[70%]
+        md:w-[400px]
+        sm:w-[25rem]
         w-[94%]
         left-1/2 transform 
         -translate-x-1/2 
