@@ -131,7 +131,7 @@ export const Calendar = ({
 
       {/* Celdas de mes(s) */}
       <div className="flex">
-        {months.map(({ base, cells }, mi) => (
+        {months.map(({ cells }, mi) => (
           <div
             key={mi}
             className="w-full"

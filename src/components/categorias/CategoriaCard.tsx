@@ -7,7 +7,7 @@ interface CategoryCardProps {
   gradient?: string;
 }
 
-export const CategoryCard = ({ title, description, icon, onClick, gradient }: CategoryCardProps) => {
+export const CategoryCard = ({ title, description, icon, onClick }: CategoryCardProps) => {
   return (
     <div
       className={`group cursor-pointer

@@ -66,7 +66,31 @@ export const ShopinggCart = () => {
            
             <ul className="pr-2" >
                 {items.map((item) => (
-                    <CartItemMod key={item.imageSrc} {...item} />
+                    <CartItemMod 
+                        key={item.imageSrc} 
+                        img_portada={item.imageSrc}
+                        titulo={item.name}
+                        modelo={item.name}
+                        marca="Ejemplo"
+                        precios={{ 
+                            precio_1: item.price,
+                            precio_especial: item.price,
+                            precio_descuento: item.price,
+                            volumen: {},
+                            precio_lista: item.price
+                        }}
+                        categorias={[]}
+                        existencia={{
+                            nuevo: 10,
+                            asterisco: { a: 0, b: 0, c: 0, d: 0, e: 0 },
+                            detalle: []
+                        }}
+                        quantity={item.quantity}
+                        producto_id={item.imageSrc}
+                        onRemove={() => console.log('Remove item')}
+                        onInc={() => console.log('Increase quantity')}
+                        onDec={() => console.log('Decrease quantity')}
+                    />
                 ))}
             </ul>
 

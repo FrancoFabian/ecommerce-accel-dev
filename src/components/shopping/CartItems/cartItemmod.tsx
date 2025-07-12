@@ -8,12 +8,13 @@ interface CartItemModProps extends CartItem {
 }
 export const CartItemMod = ({ img_portada,
   titulo,
-  marca,
+  // marca,
   precios,
   quantity,
   onRemove,
-  onInc,
-  onDec, }: CartItemModProps) => {
+  // onInc,
+  // onDec, 
+}: CartItemModProps) => {
   return (
     <li className="flex items-center gap-x-4 border-b border-gray-200 py-2 last:border-b-0">
       <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center">

@@ -52,6 +52,7 @@ export default function PasswordModal({ isOpen, onClose }: PasswordModalProps) {
           {/* Contraseña actual */}
           <InputNormal
             nameInput="currentPassword"
+            name="currentPassword"
             type="password"
             placeholder="Contraseña actual"
             isPassword={true}

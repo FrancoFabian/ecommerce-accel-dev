@@ -1,5 +1,5 @@
 'use client';
-import { useState} from "react";
+// import { useState} from "react";
 import './styles.css';
 import { Login } from "./Login";
 // import PanelRight from "./PanelRight";
@@ -10,7 +10,7 @@ import { Login } from "./Login";
 
 export const FormLoSi = () => {
     
-    const [isForgotForm, setIsForgotForm] = useState(false);
+    // const [isForgotForm, setIsForgotForm] = useState(false);
    
 
    
@@ -19,7 +19,7 @@ export const FormLoSi = () => {
         items-center overflow-hidden">
            
             
-                <Login forgotForm={isForgotForm} setForgotForm={setIsForgotForm} /> 
+                <Login /> 
               
                 
             

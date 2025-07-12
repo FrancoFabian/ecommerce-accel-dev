@@ -30,7 +30,7 @@ export const PanelRight = ({ isLogin, setIsLogin }: PanelRightProps) => {
         <div className="w-full flex justify-center items-center">
         
           <BtnSubmit name={isLogin ? "Inscríbirse" : "Iniciar sesión"}
-            type={undefined}
+            type="button"
             onClicked={()=>{setIsLogin(!isLogin)}}
             className="border border-solid text-black
          border-white w-[120px] py-4 lg:mt-0 sm:mt-10 rounded-lg"/> 

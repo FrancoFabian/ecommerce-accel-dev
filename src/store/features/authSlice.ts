@@ -15,6 +15,72 @@ interface AuthState {
   error: string | null;
 }
 
+// ✅ NUEVO: Utilidad para persistir estado localmente (como backup)
+class AuthStateManager {
+  private static readonly STORAGE_KEY = 'auth_backup_state';
+  private static readonly MAX_AGE = 24 * 60 * 60 * 1000; // 24 horas
+
+  static saveState(state: Partial<AuthState>): void {
+    try {
+      if (typeof window === 'undefined') return;
+      
+      const dataToStore = {
+        status: state.status,
+        user: state.user,
+        lastVerified: Date.now(),
+        expiresAt: state.expiresAt,
+        timestamp: Date.now()
+      };
+      
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(dataToStore));
+    } catch (error) {
+      console.warn('Could not save auth state:', error);
+    }
+  }
+
+  static loadState(): Partial<AuthState> | null {
+    try {
+      if (typeof window === 'undefined') return null;
+      
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (!stored) return null;
+      
+      const data = JSON.parse(stored);
+      
+      // Verificar que no esté muy viejo (24 horas)
+      if (Date.now() - data.timestamp > this.MAX_AGE) {
+        this.clearState();
+        return null;
+      }
+      
+      // Solo devolver si es un estado autenticado válido
+      if (data.status === 'authenticated' && data.user) {
+        return {
+          status: data.status,
+          user: data.user,
+          lastVerified: data.lastVerified,
+          expiresAt: data.expiresAt
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.warn('Could not load auth state:', error);
+      this.clearState();
+      return null;
+    }
+  }
+
+  static clearState(): void {
+    try {
+      if (typeof window === 'undefined') return;
+      localStorage.removeItem(this.STORAGE_KEY);
+    } catch (error) {
+      console.warn('Could not clear auth state:', error);
+    }
+  }
+}
+
 // Cache global para evitar verificaciones redundantes
 class TokenCache {
   private static instance: TokenCache;
@@ -55,16 +121,16 @@ class TokenCache {
   }
 }
 
-// Async thunk para verificación inteligente
+// ✅ MEJORADO: Async thunk con manejo más inteligente de errores
 export const verifyAuth = createAsyncThunk(
   'auth/verify',
   async (params: { force?: boolean } = {}, { getState, rejectWithValue }) => {
     const { force = false } = params;
     const cache = TokenCache.getInstance();
+    const state = getState() as { auth: AuthState };
     
     // Verificar si necesitamos hacer la llamada
     if (!cache.shouldVerify(force)) {
-      const state = getState() as { auth: AuthState };
       return {
         isAuthenticated: state.auth.status === 'authenticated',
         user: state.auth.user,
@@ -75,7 +141,7 @@ export const verifyAuth = createAsyncThunk(
 
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // Reducido a 5s
 
       const response = await fetch('/api/auth/status', {
         credentials: 'include',
@@ -86,10 +152,40 @@ export const verifyAuth = createAsyncThunk(
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Manejo más agresivo de errores - mantener estado actual por defecto
+        console.warn(`⚠️ Auth API error ${response.status} - manteniendo estado actual`);
+        
+        // Solo limpiar estado en errores 401/403 específicos
+        if (response.status === 401 || response.status === 403) {
+          cache.clear();
+          AuthStateManager.clearState();
+          throw new Error(`Authentication failed: ${response.status}`);
+        }
+        
+        // Para todos los demás errores, mantener estado actual
+        return {
+          isAuthenticated: state.auth.status === 'authenticated',
+          user: state.auth.user,
+          expiresAt: state.auth.expiresAt,
+          fromCache: true,
+          error: `HTTP ${response.status}`,
+          shouldMaintainState: true
+        };
       }
 
       const data = await response.json();
+      
+      // Validar estructura de respuesta
+      if (typeof data.isAuthenticated !== 'boolean') {
+        console.warn('⚠️ Invalid auth response format - manteniendo estado actual');
+        return {
+          isAuthenticated: state.auth.status === 'authenticated',
+          user: state.auth.user,
+          expiresAt: state.auth.expiresAt,
+          fromCache: true,
+          shouldMaintainState: true
+        };
+      }
       
       // Actualizar cache
       cache.updateCache(data.isAuthenticated, data.expiresAt);
@@ -101,23 +197,57 @@ export const verifyAuth = createAsyncThunk(
         fromCache: false
       };
     } catch (error) {
-      cache.clear();
-      return rejectWithValue(error instanceof Error ? error.message : 'Unknown error');
+      // Manejo conservador de errores
+      if (error instanceof Error) {
+        // Solo errores de autenticación específicos limpian el estado
+        if (error.message.includes('Authentication failed')) {
+          cache.clear();
+          AuthStateManager.clearState();
+          return rejectWithValue({
+            message: error.message,
+            shouldClearState: true
+          });
+        }
+        
+        // Todos los demás errores mantienen el estado actual
+        console.warn('⚠️ Network/other error - manteniendo estado actual:', error.message);
+        return {
+          isAuthenticated: state.auth.status === 'authenticated',
+          user: state.auth.user,
+          expiresAt: state.auth.expiresAt,
+          fromCache: true,
+          error: error.message,
+          shouldMaintainState: true
+        };
+      }
+      
+      // Error desconocido - mantener estado actual
+      return {
+        isAuthenticated: state.auth.status === 'authenticated',
+        user: state.auth.user,
+        expiresAt: state.auth.expiresAt,
+        fromCache: true,
+        error: 'Unknown error',
+        shouldMaintainState: true
+      };
     }
   }
 );
 
-// Slice
+// ✅ CORREGIDO: Estado inicial siempre neutral para SSR
+const initialState: AuthState = {
+  status: 'idle',
+  user: null,
+  lastVerified: null,
+  expiresAt: null,
+  isInitialized: false,
+  error: null
+};
+
+// Slice con estado inicial neutral (sin localStorage en SSR)
 const authSlice = createSlice({
   name: 'auth',
-  initialState: {
-    status: 'idle',
-    user: null,
-    lastVerified: null,
-    expiresAt: null,
-    isInitialized: false,
-    error: null
-  } as AuthState,
+  initialState,
   reducers: {
     logout: (state) => {
       state.status = 'unauthenticated';
@@ -126,12 +256,20 @@ const authSlice = createSlice({
       state.expiresAt = null;
       state.error = null;
       TokenCache.getInstance().clear();
+      AuthStateManager.clearState(); // ✅ Limpiar backup local
     },
     clearError: (state) => {
       state.error = null;
     },
     setInitialized: (state) => {
       state.isInitialized = true;
+    },
+    preserveStateOnError: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+      state.lastVerified = Date.now();
+      if (!state.isInitialized) {
+        state.isInitialized = true;
+      }
     }
   },
   extraReducers: (builder) => {
@@ -143,32 +281,66 @@ const authSlice = createSlice({
         } else if (action.meta.arg?.force) {
           state.status = 'checking';
         }
-        // Para verificaciones rutinarias, mantener estado actual (sin parpadeo)
       })
       .addCase(verifyAuth.fulfilled, (state, action) => {
-        const { isAuthenticated, user, expiresAt, fromCache } = action.payload;
+        const { isAuthenticated, user, expiresAt, fromCache, error, shouldMaintainState } = action.payload;
         
-        // Solo actualizar si el estado realmente cambió (evitar re-renders)
-        const newStatus = isAuthenticated ? 'authenticated' : 'unauthenticated';
-        if (state.status !== newStatus) {
-          state.status = newStatus;
+        // Si se indica que debemos mantener el estado, solo actualizar error y timestamp
+        if (shouldMaintainState) {
+          state.error = error || null;
+          state.lastVerified = Date.now();
+          if (!state.isInitialized) {
+            state.isInitialized = true;
+          }
+          return;
         }
         
+        // Si viene del cache con error, solo actualizar el error, no el estado
+        if (fromCache && error) {
+          state.error = error;
+          state.lastVerified = Date.now();
+          if (!state.isInitialized) {
+            state.isInitialized = true;
+          }
+          return;
+        }
+        
+        // Actualizar estado
+        const newStatus = isAuthenticated ? 'authenticated' : 'unauthenticated';
+        state.status = newStatus;
         state.user = user;
         state.expiresAt = expiresAt;
         state.lastVerified = Date.now();
         state.error = null;
         state.isInitialized = true;
+        
+        // ✅ Guardar backup local si está autenticado
+        if (isAuthenticated && user) {
+          AuthStateManager.saveState(state);
+        } else {
+          AuthStateManager.clearState();
+        }
       })
       .addCase(verifyAuth.rejected, (state, action) => {
-        state.status = 'unauthenticated';
-        state.user = null;
-        state.error = action.payload as string;
+        const payload = action.payload as { message: string; shouldClearState?: boolean } | undefined;
+        
+        if (payload?.shouldClearState) {
+          // Error de autenticación específico - limpiar estado
+          state.status = 'unauthenticated';
+          state.user = null;
+          state.error = payload.message;
+          state.expiresAt = null;
+          AuthStateManager.clearState(); // ✅ Limpiar backup
+        } else {
+          // Otros errores - mantener estado actual, solo actualizar error
+          state.error = payload?.message || 'Unknown error';
+        }
+        
         state.lastVerified = Date.now();
         state.isInitialized = true;
       });
   }
 });
 
-export const { logout, clearError, setInitialized } = authSlice.actions;
-export default authSlice.reducer; 
+export const { logout, clearError, setInitialized, preserveStateOnError } = authSlice.actions;
+export default authSlice.reducer;

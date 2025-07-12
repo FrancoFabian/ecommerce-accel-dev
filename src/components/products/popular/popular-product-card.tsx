@@ -15,7 +15,7 @@ export const ProductCardPop: React.FC<ProductCardProps> = ({
   id,
   title,
   description,
-  price,
+  // price,
   imageUrl,
   isNew = false,
   onSave,

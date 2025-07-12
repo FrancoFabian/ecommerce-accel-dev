@@ -3,6 +3,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
+import { useAuth } from '@/lib/hooks/useAuth';
 
 /**
  * Hook para cerrar sesión y redirigir al usuario.
@@ -12,20 +13,21 @@ import { useCallback } from "react";
  */
 export const useLogout = (redirectTo: string = "/") => {
   const router = useRouter();
+  const { logout: logoutFromStore } = useAuth();
 
   const logout = useCallback(async () => {
     try {
-      const res = await fetch("/api/auth/logout", { method: "POST" });
-
-      if (res.ok) {
-        router.push(redirectTo);           // ✅ redirección centralizada
-      } else {
-        console.error("Error al cerrar sesión");
-      }
+      // Llamar al logout del store que maneja el estado
+      await logoutFromStore();
+      
+      // Redirigir después de que el estado se haya actualizado
+      router.push(redirectTo);
     } catch (err) {
       console.error("Error en el logout:", err);
+      // Aún así redirigir en caso de error
+      router.push(redirectTo);
     }
-  }, [router, redirectTo]);
+  }, [router, redirectTo, logoutFromStore]);
 
   return logout;
 };

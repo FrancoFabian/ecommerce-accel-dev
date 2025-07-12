@@ -87,11 +87,29 @@ export async function middleware(request: NextRequest) {
       }
     }
 
-    // No autenticado y sin refresh válido ⇒ limpiar cookies y redirigir
-    const res = NextResponse.redirect(new URL('/login', request.url));
-    ['accessToken', 'refreshToken', 'verificationToken', 'token', 'refresh_token']
-      .forEach(name => res.cookies.delete(name));
-    return res;
+    // Solo redirigir a login si es una ruta protegida específica
+    // NO redirigir en rutas 404 o desconocidas para mantener el estado de auth
+    const protectedPaths = [
+      '/micuenta',
+      '/carrito',
+      '/checkout',
+      '/admin'
+    ];
+
+    const isProtectedPath = protectedPaths.some(p =>
+      pathname === p || pathname.startsWith(p + '/')
+    );
+
+    if (isProtectedPath) {
+      // No autenticado y sin refresh válido ⇒ limpiar cookies y redirigir
+      const res = NextResponse.redirect(new URL('/login', request.url));
+      ['accessToken', 'refreshToken', 'verificationToken', 'token', 'refresh_token']
+        .forEach(name => res.cookies.delete(name));
+      return res;
+    }
+
+    // Para rutas no protegidas (incluyendo 404), permitir acceso
+    return NextResponse.next();
   }
 
   /* ------------------------------------------------------------------ */

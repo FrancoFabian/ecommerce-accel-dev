@@ -16,6 +16,7 @@ export const NewPassword = () => {
                     <div className="space-y-2">
                       <InputNormal 
                       nameInput="Nueva contraseña"
+                      name="newPassword"
                        type="password"
                        placeholder="Ingresa tu nueva contraseña"    
                        isPassword={true} value="" 
@@ -23,6 +24,7 @@ export const NewPassword = () => {
                        />  
                         <InputNormal 
                         nameInput="Confirmar contraseña"
+                        name="confirmPassword"
                         type="password"
                         placeholder="Confirmar contraseña" 
                         isPassword={true} value="" 

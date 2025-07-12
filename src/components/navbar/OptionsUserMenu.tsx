@@ -1,5 +1,5 @@
 "use client";
-import { forwardRef, memo, useCallback } from "react";
+import { forwardRef, memo } from "react";
 import { useLogout } from "@/lib/hooks/session/useLogout";
 
 const menuItems = [
