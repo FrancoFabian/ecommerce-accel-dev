@@ -1,0 +1,42 @@
+/* Estilos específicos para skeletons que no interfieren con el sistema del usuario */
+
+/* Animación shimmer personalizada para skeletons */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  background-size: 200px 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+}
+
+/* Asegurar que los skeletons no interfieran con otros elementos */
+.skeleton-container {
+  isolation: isolate;
+}
+
+.skeleton-base {
+  background: #e5e7eb;
+  border-radius: 0.375rem;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+} 

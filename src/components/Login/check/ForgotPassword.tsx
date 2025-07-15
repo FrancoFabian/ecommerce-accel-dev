@@ -16,7 +16,7 @@ export const ForgotPassword = ({ forgotForm, setForgotForm }: ForgotPasswordProp
             <button
                 className="relative inline-flex items-center tap-highlight-transparent outline-none 
             text-sm lg:text-xs 2xl:text-sm  no-underline hover:opacity-80 
-             active:opacity-disabled transition-opacity text-primary"
+             active:opacity-disabled transition-opacity text-[#006fee]"
              onClick={handleIsFormForgotPassword}
             >
                 ¿Has olvidado tu contraseña?

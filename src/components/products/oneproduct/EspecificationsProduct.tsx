@@ -4,33 +4,72 @@ import { BtnHeart } from "./svg/BtnHeart";
 import { ColorSelector } from "./minicomponents/ColorSelector";
 import { SizeSelector } from "./minicomponents/SizeSelector";
 import { ProductDetails } from "./minicomponents/ProductDetails";
+import { SyscomProducto } from '@/types/product';
 
-export const EspecificacionProduct = () => {
+interface EspecificacionProductProps {
+  product?: SyscomProducto;
+}
+
+export const EspecificacionProduct = ({ product }: EspecificacionProductProps) => {
     return (
         <div className="flex flex-col p-10">
             {/* Product Title */}
-            <h1 className="text-2xl font-bold tracking-tight">Nike Air Max 270</h1>
+            <h1 className="text-2xl font-bold tracking-tight">
+              {product?.titulo || 'Producto sin título'}
+            </h1>
 
             {/* Product Information */}
             <h2 className="sr-only">Product information</h2>
+
+            {/* Brand and Model */}
+            {product?.marca && (
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-sm font-medium text-blue-600">
+                  {product.marca}
+                </span>
+                {product.modelo && (
+                  <span className="text-sm text-gray-500">
+                    Modelo: {product.modelo}
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Rating */}
             <div className="my-2 flex items-center gap-2">
                 {/* Aquí va el componente de calificación con SVG estrellas */}
                 <StarsQualification rating={4} gaps="gap-2" />
-                <p className="text-small text-default-400">669 reviews</p>
+                <p className="text-small text-default-400">Disponible</p>
             </div>
+            
             {/* Price */}
-            <p className="text-xl font-medium tracking-tight">$80.97</p>
+            <div className="flex flex-col gap-1">
+              {product?.precios?.precio_lista && (
+                <p className="text-xl font-medium tracking-tight">
+                  ${Number(product.precios.precio_lista).toFixed(2)}
+                </p>
+              )}
+              {product?.precios?.precio_especial && product.precios.precio_especial !== product.precios.precio_lista && (
+                <p className="text-lg text-green-600 font-medium">
+                  Precio especial: ${Number(product.precios.precio_especial).toFixed(2)}
+                </p>
+              )}
+            </div>
+
+            {/* Existencia */}
+            {product?.total_existencia && (
+              <div className="mt-2">
+                <p className="text-sm text-gray-600">
+                  Existencia: {product.total_existencia} unidades
+                </p>
+              </div>
+            )}
 
             {/* Product Description */}
             <div className="mt-4">
                 <p className="sr-only">Product description</p>
                 <p className="line-clamp-3 text-medium text-default-500">
-                    The Nike Air Max 270 delivers an even more adaptive fit than before.
-                    Stretch material in the upper moves with your foot, while the tri-star
-                    outsole pattern adjusts to your every step for a ride that delivers
-                    support and flexibility where you need it.
+                    {product?.descripcion || 'Descripción no disponible'}
                 </p>
             </div>
 
@@ -55,7 +94,7 @@ export const EspecificacionProduct = () => {
             <div className="relative flex flex-col gap-1" aria-label="Select size" role="radiogroup" aria-orientation="horizontal">
                 <SizeSelector />
             </div>
-             <ProductDetails />
+             <ProductDetails product={product} />
 
             {/* Action Buttons */}
             <div className="mt-2 flex gap-2">

@@ -47,4 +47,49 @@ export interface Categoria {
     productos: ProductCardProps[];
   }
   
+  // ===== TIPOS PARA SYSCOM API =====
+
+export interface SyscomPrecios {
+  precio_lista: number;
+  precio_especial: number;
+  precio_descuentos: number;
+}
+
+export interface SyscomIconos {
+  inf_izq: string;
+  inf_der: string;
+  sup_izq: string;
+  sup_der: string;
+}
+
+export interface SyscomImagen {
+  orden: number;
+  url: string;
+}
+
+export interface SyscomRecurso {
+  recurso: string;
+  path: string;
+}
+
+export interface SyscomProducto {
+  producto_id: number;
+  modelo: string;
+  total_existencia: number;
+  titulo: string;
+  marca: string;
+  sat_key: string;
+  img_portada: string;
+  categorías: (string | null)[];
+  marca_logo: string;
+  link: string;
+  precios: SyscomPrecios;
+  existencia: Record<string, any>;
+  iconos: SyscomIconos;
+  caracteristicas: string[];
+  imagenes: SyscomImagen[];
+  descripcion: string;
+  recursos: SyscomRecurso[];
+}
+  
   

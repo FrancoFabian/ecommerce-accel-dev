@@ -1,12 +1,25 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { GaleriaProduct } from './GaleriaProduct';
+import { SyscomProducto } from '@/types/product';
 
-export const ProductDisplay = () => {
-  const [selectedImage, setSelectedImage] = useState(
-    'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/shoes/product-view/5.jpeg'
-  );
+interface ProductDisplayProps {
+  product?: SyscomProducto;
+}
+
+export const ProductDisplay = ({ product }: ProductDisplayProps) => {
+  // Usar la imagen de portada como imagen por defecto, o la primera imagen del array
+  const defaultImage = product?.img_portada || 
+    (product?.imagenes && product.imagenes.length > 0 ? product.imagenes[0].url : '') ||
+    'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/shoes/product-view/5.jpeg';
+    
+  const [selectedImage, setSelectedImage] = useState(defaultImage);
+  
+  // Actualizar la imagen seleccionada cuando cambie el producto
+  useEffect(() => {
+    setSelectedImage(defaultImage);
+  }, [defaultImage]);
 
   return (
     <div className="relative flex-none w-full">
@@ -31,17 +44,20 @@ export const ProductDisplay = () => {
       <div className="relative w-full h-[60vh] md:h-[80vh] lg:h-[90vh]">
         <Image
           src={selectedImage}
-          alt="Nike Air Max 270"
+          alt={product?.titulo || 'Producto'}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 50vw"
           priority
-          style={{ objectFit: 'fill' }} // ✅ Para que la imagen cubra todo el espacio sin distorsión
+          style={{ objectFit: 'contain' }} // Cambié a contain para evitar distorsión
           className="rounded-lg shadow-md"
         />
       </div>
 
       {/* Thumbnail Gallery */}
-      <GaleriaProduct onSelectImage={(src: string) => setSelectedImage(src)} />
+      <GaleriaProduct 
+        images={product?.imagenes || []}
+        onSelectImage={(src: string) => setSelectedImage(src)} 
+      />
     </div>
   );
 };

@@ -19,7 +19,7 @@ export const PaymentOptions = ({id, label, expires, isSelected, onSelect, recome
       <label
       onClick={() => onSelect(id)}
       className={`group relative tap-highlight-transparent p-2 inline-flex m-0 px-3 py-4 max-w-[100%] items-center justify-between flex-row-reverse w-full cursor-pointer rounded-lg 
-        !border-[2px] ${isSelected ? (id === 'whatsapppayment4' ? 'border-[#25a760]' : 'border-primary') : 'border-gray-200'}`}
+        !border-[2px] ${isSelected ? (id === 'whatsapppayment4' ? 'border-[#25a760]' : 'border-[#111827]') : 'border-gray-200'}`}
       data-selected={isSelected}
     >
         <span
@@ -49,7 +49,7 @@ export const PaymentOptions = ({id, label, expires, isSelected, onSelect, recome
           aria-hidden="true"
           className={`relative inline-flex items-center justify-center flex-shrink-0 overflow-hidden border-solid border-[2px] box-border border-default rounded-full ${
             isSelected
-              ? `${id === 'whatsapppayment4' ?"border-[#059669]":"border-primary"}`
+              ? `${id === 'whatsapppayment4' ?"border-[#059669]":"border-[#111827]"}`
               : "hover:bg-gray-300"
           } w-5 h-5`}
         >

@@ -1,6 +1,16 @@
 'use client';
+import { useAppSelector, useAppDispatch } from '@/store/hooks';
+import {
+    selectCartItems,
+    selectCartTotal,
+    selectCartCount,
+    decrement,
+    addOrIncrement,
+    remove,
+} from '@/store/features/cartSlice';
 import { LeftArrowIcon } from '@/icons/LeftArrowIcon'
-import React from 'react'
+
+
 
 
 interface BackMenuCartProps {
@@ -8,6 +18,9 @@ interface BackMenuCartProps {
     currentStep: number;
 }
 export const BackMenuCart = ({ onBack, currentStep }: BackMenuCartProps) => {
+    const items = useAppSelector(selectCartItems);
+    const total = useAppSelector(selectCartTotal);
+    const cartCount = useAppSelector(selectCartCount);
     return (
         <div className="flex flex-wrap pr-4 gap-2 justify-between w-full items-center">
             <button
@@ -29,10 +42,14 @@ export const BackMenuCart = ({ onBack, currentStep }: BackMenuCartProps) => {
             <div className="flex items-center gap-2">
                 <p>
                     <span className="text-small font-semibold text-default-700">
-                        $172,96
+                        ${Number(total).toFixed(2)}
                     </span>
-                    <span className="ml-1 text-small text-default-500">
-                        (3 artículos)
+                    <span className="ml-1 text-default-500">
+                        {cartCount > 0 && (
+                            <span className="text-gray-500">
+                                {`  ( ${cartCount}`} {cartCount === 1 ? 'articulo )' : 'articulos )'}
+                            </span>
+                        )}
                     </span>
                 </p>
             </div>

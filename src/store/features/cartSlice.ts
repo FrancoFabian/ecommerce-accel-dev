@@ -18,6 +18,18 @@ const cartAdapter = createEntityAdapter<CartItem, string>({
 });
 const initialState = cartAdapter.getInitialState();
 
+/* ── función helper para parsear precios ─────────────────────────────── */
+const parsePrice = (price: any): number => {
+  if (typeof price === 'number' && !isNaN(price)) {
+    return price;
+  }
+  if (typeof price === 'string') {
+    const parsed = parseFloat(price);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+  return 0;
+};
+
 /* ── slice ───────────────────────────────────────────────────────────── */
 const cartSlice = createSlice({
   name: 'cart',
@@ -62,6 +74,35 @@ export const selectCartCount = (s: RootState) =>
 
 export const selectCartTotal = (s: RootState) =>
   Object.values(s.cart.entities).reduce(
-    (acc, item) => acc + (item ? item.quantity * item.precios.precio_lista : 0),
+    (acc, item) => {
+      if (!item || !item.precios) return acc;
+      const price = parsePrice(item.precios.precio_1);
+      return acc + (item.quantity * price);
+    },
     0,
   );
+
+/* ── selector para obtener el total formateado ──────────────────────── */
+export const selectCartTotalFormatted = (s: RootState) => {
+  const total = selectCartTotal(s);
+  return total.toFixed(2);
+};
+
+/* ── selector para obtener información detallada del carrito ─────────── */
+export const selectCartSummary = (s: RootState) => {
+  const items = Object.values(s.cart.entities);
+  const count = items.reduce((acc, item) => acc + (item?.quantity ?? 0), 0);
+  const total = items.reduce((acc, item) => {
+    if (!item || !item.precios) return acc;
+    const price = parsePrice(item.precios.precio_1);
+    return acc + (item.quantity * price);
+  }, 0);
+  
+  return {
+    count,
+    total,
+    totalFormatted: total.toFixed(2),
+    isEmpty: count === 0,
+    items: items.filter(Boolean),
+  };
+};

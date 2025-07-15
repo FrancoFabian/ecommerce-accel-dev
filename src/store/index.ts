@@ -6,6 +6,7 @@ import productsReducer from '@/store/features/productsSlice';
 import cartReducer from '@/store/features/cartSlice';
 import authReducer from '@/store/features/authSlice';
 import { ecommerceApi } from '@/store/services/ecommerceApi';
+import { syscomApi } from '@/store/services/syscomApi';
 import { authListenerMiddleware } from './middleware/authMiddleware';
 
 const rootReducer = combineReducers({
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
   cart: cartReducer,
   auth: authReducer,
   [ecommerceApi.reducerPath]: ecommerceApi.reducer,
+  [syscomApi.reducerPath]: syscomApi.reducer,
 });
 
 export const makeStore = () => {
@@ -24,7 +26,7 @@ export const makeStore = () => {
         serializableCheck: {
           ignoredActions: ['auth/verify/pending', 'auth/verify/fulfilled', 'auth/verify/rejected']
         }
-      }).concat(ecommerceApi.middleware, authListenerMiddleware.middleware),
+      }).concat(ecommerceApi.middleware, syscomApi.middleware, authListenerMiddleware.middleware),
     devTools: process.env.NODE_ENV !== 'production',
   });
 

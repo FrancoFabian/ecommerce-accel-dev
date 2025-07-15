@@ -4,6 +4,15 @@ import { CartItemMod } from "./CartItems/cartItemmod";
 import { Quicksand } from "next/font/google";
 import { Desglose } from "./CartItems/desglose";
 import './CartItems/styles.css';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+    selectCartItems,
+    selectCartTotal,
+    selectCartCount,
+    decrement,
+    addOrIncrement,
+    remove,
+  } from '@/store/features/cartSlice';
 
 const quickSans = Quicksand({ subsets: ["latin"] });
 
@@ -17,46 +26,39 @@ interface Item {
 }
 
 export const ShopinggCart = () => {
-    const items: Item[] = [
-        {
-            imageSrc: 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/shoes/1.png',
-            name: 'Zapatillas de entrenamiento',
-            color: 'negro',
-            size: 42,
-            price: 49.99,
-            quantity: 1,
-        },
-        {
-            imageSrc: 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/shoes/2.png',
-            name: 'Zapatillas para correr',
-            color: 'rojo',
-            size: 41,
-            price: 39.99,
-            quantity: 2,
-        },
-        {
-            imageSrc: 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/shoes/3.png',
-            name: 'Zapatillas de baloncesto',
-            color: 'azul',
-            size: 43,
-            price: 59.99,
-            quantity: 1,
-        },
-        {
-            imageSrc: 'https://nextuipro.nyc3.cdn.digitaloceanspaces.com/components-images/shoes/4.png',
-            name: 'Sandalias de playa',
-            color: 'amarillo',
-            size: 40,
-            price: 29.99,
-            quantity: 3,
-        },
-    ];
-
+    const [actionLoading, setActionLoading] = useState<string | null>(null);
+    const dispatch = useAppDispatch();
+    
+    
+    const items = useAppSelector(selectCartItems);  
     const [couponCode, setCouponCode] = useState('');
 
     const handleApplyCoupon = () => {
         // Lógica para aplicar el código de cupón
         console.log('Código de cupón aplicado:', couponCode);
+    };
+    const handleRemove = (productId: string) => {
+        setActionLoading(productId);
+        setTimeout(() => {
+          dispatch(remove(productId));
+          setActionLoading(null);
+        }, 150);
+    };
+    
+    const handleIncrement = (item: any) => {
+        setActionLoading(item.producto_id);
+        setTimeout(() => {
+          dispatch(addOrIncrement(item));
+          setActionLoading(null);
+        }, 100);
+    };
+
+    const handleDecrement = (productId: string) => {
+        setActionLoading(productId);
+        setTimeout(() => {
+          dispatch(decrement(productId));
+          setActionLoading(null);
+        }, 100);
     };
 
     return (
@@ -67,29 +69,13 @@ export const ShopinggCart = () => {
             <ul className="pr-2" >
                 {items.map((item) => (
                     <CartItemMod 
-                        key={item.imageSrc} 
-                        img_portada={item.imageSrc}
-                        titulo={item.name}
-                        modelo={item.name}
-                        marca="Ejemplo"
-                        precios={{ 
-                            precio_1: item.price,
-                            precio_especial: item.price,
-                            precio_descuento: item.price,
-                            volumen: {},
-                            precio_lista: item.price
-                        }}
-                        categorias={[]}
-                        existencia={{
-                            nuevo: 10,
-                            asterisco: { a: 0, b: 0, c: 0, d: 0, e: 0 },
-                            detalle: []
-                        }}
-                        quantity={item.quantity}
-                        producto_id={item.imageSrc}
-                        onRemove={() => console.log('Remove item')}
-                        onInc={() => console.log('Increase quantity')}
-                        onDec={() => console.log('Decrease quantity')}
+                    key={item.producto_id}
+                    {...item}
+                    onRemove={() => handleRemove(item.producto_id)}
+                    onInc={() => handleIncrement(item)}
+                    onDec={() => handleDecrement(item.producto_id)}
+                    isLoading={actionLoading === item.producto_id}
+                    maxQuantity={50}
                     />
                 ))}
             </ul>
@@ -108,7 +94,7 @@ export const ShopinggCart = () => {
                     />
                 </div>
                 <button
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md cursor-pointer"
+                    className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-md cursor-pointer"
                     onClick={handleApplyCoupon}
                 >
                     Aplicar

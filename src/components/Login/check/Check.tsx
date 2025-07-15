@@ -44,7 +44,7 @@ export const Check = ({ id, checked = false, onCheckedChange }: CheckProps) => {
         after:content-[''] after:absolute after:inset-0 after:scale-100 after:opacity-0 after:origin-center 
         ${isChecked ? 'after:scale-100 after:opacity-100' : ''}
         group-hover:before:bg-gray-100 outline-none group-focus-visible:z-10 group-focus-visible:ring-2 group-focus-visible:ring-blue-500 
-        group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-white after:bg-[#111827] 
+        group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-white after:bg-primary 
         w-4 h-4 mr-2 rounded-md before:rounded-md after:rounded-md before:transition-colors transition-transform after:transition-transform-opacity 
         after:duration-200`}
       >

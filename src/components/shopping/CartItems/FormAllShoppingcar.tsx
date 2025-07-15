@@ -1,10 +1,19 @@
+'use client';
 import { FormProgress } from '../forms/FormProgress';
-export const FormAllShoppingcar = () => {
 
-    return (
-        <div className="flex h-full flex-1 flex-col p-4 overfloy-auto">
-            
-            <FormProgress />
-        </div>
-    );
+interface FormAllShoppingcarProps {
+  onBack?: () => void;
+  onComplete?: () => void;
+  isLoading?: boolean;
+  checkoutData?: any;
+  setCheckoutData?: (data: any) => void;
+}
+
+export const FormAllShoppingcar = ({
+}) => {
+  return (
+    <div className="flex h-full flex-1 flex-col p-4 overflow-auto">
+      <FormProgress/>
+    </div>
+  );
 };

@@ -1,9 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import {
   fetchSubcategories,
-  selectSubcategories,
+  makeSelectSubcategories,
+  selectCategoriesLoading,
 } from '@/store/features/categoriesSlice';
 import {
   fetchProducts,
@@ -124,7 +125,7 @@ export function CategoryHome() {
   // estado global
   const products = useAppSelector(selectProducts);
   const productsLoading = useAppSelector(selectProductsLoading);
-  const categoriesLoading = useAppSelector((s) => s.categories.loading);
+  const categoriesLoading = useAppSelector(selectCategoriesLoading);
 
   // estado local que SÍ sigue siendo propio del componente
   const [currentCategory, setCurrentCategory] = useState<string | null>(null);
@@ -133,10 +134,9 @@ export function CategoryHome() {
   );
   const [viewMode, setViewMode] = useState<ViewMode>('categories');
 
-  /* ── selectores derivados ────────────────────────────────────────── */
-  const subcats = useAppSelector(
-    currentCategory ? selectSubcategories(currentCategory) : () => [],
-  );
+  /* ── selectores derivados memoizados ─────────────────────────────── */
+  const selectSubcats = useMemo(() => makeSelectSubcategories(), []);
+  const subcats: Category[] = useAppSelector((state) => selectSubcats(state, currentCategory));
 
   /* ── efectos de carga ────────────────────────────────────────────── */
   useEffect(() => {

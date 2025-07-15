@@ -1,5 +1,5 @@
 // src/store/features/categoriesSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, createSelector } from '@reduxjs/toolkit';
 import type { Category } from '@/types/category';
 import type { RootState } from '@/store';
 
@@ -42,6 +42,33 @@ const categoriesSlice = createSlice({
   },
 });
 
+// Selectores base
+const selectCategoriesState = (state: RootState) => state.categories;
+const selectCategoriesEntities = createSelector(
+  [selectCategoriesState],
+  (categories) => categories.entities
+);
+
+// Selector memoizado para subcategorías
+export const selectSubcategoriesById = createSelector(
+  [selectCategoriesEntities, (_: RootState, categoryId: string) => categoryId],
+  (entities, categoryId) => entities[categoryId] ?? []
+);
+
+// Función helper para crear selectores memoizados por categoría
+export const makeSelectSubcategories = () => createSelector(
+  [selectCategoriesEntities, (_: RootState, categoryId: string | null) => categoryId],
+  (entities, categoryId) => categoryId ? (entities[categoryId] ?? []) : []
+);
+
+// Selector para estado de carga
+export const selectCategoriesLoading = createSelector(
+  [selectCategoriesState],
+  (categories) => categories.loading
+);
+
 export default categoriesSlice.reducer;
+
+// Mantener compatibilidad hacia atrás (deprecated)
 export const selectSubcategories =
-  (id: string) => (state: RootState) => state.categories.entities[id] ?? [];
+  (id: string) => (state: RootState) => selectSubcategoriesById(state, id);
